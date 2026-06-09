@@ -75,6 +75,7 @@ export function SettingsView(): ReactElement {
   const settingsSection = useChatStore((s) => s.settingsSection)
   const openCode = useChatStore((s) => s.openCode)
   const openWrite = useChatStore((s) => s.openWrite)
+  const openRe = useChatStore((s) => s.openRe)
   const openClaw = useChatStore((s) => s.openClaw)
   const openSchedule = useChatStore((s) => s.openSchedule)
   const openInitialSetup = useChatStore((s) => s.openInitialSetup)
@@ -523,6 +524,10 @@ export function SettingsView(): ReactElement {
       await reloadUiSettings()
       if (settingsReturnRoute === 'write') {
         await openWrite()
+        return
+      }
+      if (settingsReturnRoute === 're') {
+        await openRe()
         return
       }
       if (settingsReturnRoute === 'claw') {

@@ -114,14 +114,15 @@ export const KUN_USAGE_PATH = '/v1/usage'
 export const KUN_USAGE_TEMPLATE = '/v1/usage'
 
 /** Thread mode shared with the Kun contract. */
-export type KunThreadMode = 'agent' | 'plan'
+export type KunThreadMode = 'agent' | 'plan' | 're'
 
-const THREAD_MODES: ReadonlySet<KunThreadMode> = new Set<KunThreadMode>(['agent', 'plan'])
+const THREAD_MODES: ReadonlySet<KunThreadMode> = new Set<KunThreadMode>(['agent', 'plan', 're'])
 
 export function isKunThreadMode(value: unknown): value is KunThreadMode {
   return typeof value === 'string' && (THREAD_MODES as Set<string>).has(value)
 }
 
 export function normalizeThreadMode(value: unknown): KunThreadMode {
+  if (value === 're') return 're'
   return value === 'plan' ? 'plan' : 'agent'
 }

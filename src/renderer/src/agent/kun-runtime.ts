@@ -238,7 +238,7 @@ export class KunRuntimeProvider implements AgentProvider {
       body.displayText = options.displayText.trim()
     }
     const mode = options?.mode
-    if (mode === 'agent' || mode === 'plan') {
+    if (mode === 'agent' || mode === 'plan' || mode === 're') {
       body.mode = mode
     }
     if (options?.guiPlan) {

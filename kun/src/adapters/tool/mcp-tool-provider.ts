@@ -69,6 +69,7 @@ export type McpToolProviderBuildResult = {
   providers: CapabilityToolProvider[]
   diagnostics: McpServerDiagnostic[]
   search: McpSearchRuntimeDiagnostic
+  catalog: McpSearchCatalogState
   connectedServers: number
   toolCount: number
   close: () => Promise<void>
@@ -122,6 +123,7 @@ export async function buildMcpToolProviders(
         advertisedToolCount: 0,
         state: catalogState
       }),
+      catalog: catalogState,
       connectedServers: 0,
       toolCount: 0,
       close: async () => undefined
@@ -204,6 +206,7 @@ export async function buildMcpToolProviders(
       advertisedToolCount,
       state: catalogState
     }),
+    catalog: catalogState,
     connectedServers,
     toolCount,
     close: async () => {

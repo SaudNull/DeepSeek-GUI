@@ -1,7 +1,7 @@
 export type AttachmentUploadAvailabilityInput = {
   runtimeConnection: string
   route: string
-  mode: 'plan' | 'agent'
+  mode: 'plan' | 'agent' | 're'
   attachmentStoreAvailable?: boolean
 }
 

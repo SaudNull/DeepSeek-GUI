@@ -30,7 +30,7 @@ import {
 type Props = {
   threads: NormalizedThread[]
   activeThreadId: string | null
-  activeView: 'chat' | 'write' | 'claw' | 'schedule'
+  activeView: 'chat' | 'write' | 're' | 'claw' | 'schedule'
   connectPhoneSidebarOpen: boolean
   pluginsActive: boolean
   runtimeReady: boolean
@@ -50,6 +50,7 @@ type Props = {
   onOpenPlugins: () => void
   onToggleConnectPhone: () => void
   onCodeOpen: () => void
+  onReOpen: () => void
   onWriteOpen: () => void
   onScheduleOpen: () => void
   onToggleSidebar: () => void
@@ -78,6 +79,7 @@ export function Sidebar({
   onOpenPlugins,
   onToggleConnectPhone,
   onCodeOpen,
+  onReOpen,
   onWriteOpen,
   onScheduleOpen,
   onToggleSidebar
@@ -131,6 +133,7 @@ export function Sidebar({
         <WorkspaceModeTabs
           activeView={activeView}
           onCodeOpen={onCodeOpen}
+          onReOpen={onReOpen}
           onWriteOpen={onWriteOpen}
         />
 

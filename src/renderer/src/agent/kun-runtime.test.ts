@@ -305,6 +305,24 @@ describe('KunRuntimeProvider', () => {
     )
   })
 
+  it('posts RE mode with Kun turn requests', async () => {
+    const runtimeRequest = vi.fn(async () => ({
+      ok: true,
+      status: 202,
+      body: JSON.stringify({ threadId: 'thr_1', turnId: 'turn_re', userMessageItemId: 'item_user_re' })
+    }))
+    installDsGui({ runtimeRequest })
+    const provider = new KunRuntimeProvider()
+
+    await provider.sendUserMessage('thr_1', 'Triage this binary.', { mode: 're' })
+
+    expect(runtimeRequest).toHaveBeenCalledWith(
+      '/v1/threads/thr_1/turns',
+      'POST',
+      JSON.stringify({ prompt: 'Triage this binary.', mode: 're' })
+    )
+  })
+
   it('posts interrupt requests with the discard option when requested', async () => {
     const runtimeRequest = vi.fn(async () => ({
       ok: true,

@@ -4,6 +4,7 @@ import type { EditorInfo } from '@shared/editor'
 import type { GuiUpdateState } from '@shared/gui-update'
 import {
   ArrowUpCircle,
+  Binary,
   Check,
   ChevronDown,
   Code2,
@@ -22,12 +23,13 @@ import {
 import { useTranslation } from 'react-i18next'
 import { readPreferredEditorId, writePreferredEditorId } from '../../lib/editor-preferences'
 
-export type RightPanelMode = 'todo' | 'changes' | 'browser' | 'file' | 'plan' | 'sdd-ai' | null
+export type RightPanelMode = 'todo' | 'changes' | 'browser' | 'file' | 'plan' | 'sdd-ai' | 're' | null
 
 type Props = {
   rightPanelMode: RightPanelMode
   onToggleRightPanelMode: (mode: Exclude<RightPanelMode, null>) => void
   planPanelEnabled?: boolean
+  rePanelEnabled?: boolean
   sideChatCount?: number
   sideChatRunningCount?: number
   sideChatOpen?: boolean
@@ -39,6 +41,7 @@ export function WorkbenchTopBar({
   rightPanelMode,
   onToggleRightPanelMode,
   planPanelEnabled = false,
+  rePanelEnabled = false,
   sideChatCount = 0,
   sideChatRunningCount = 0,
   sideChatOpen = false,
@@ -56,6 +59,7 @@ export function WorkbenchTopBar({
   const items = [
     { mode: 'todo' as const, label: t('rightPanelTodo'), icon: ListTodo },
     ...(planPanelEnabled ? [{ mode: 'plan' as const, label: t('rightPanelPlan'), icon: ClipboardList }] : []),
+    ...(rePanelEnabled ? [{ mode: 're' as const, label: t('rightPanelRe'), icon: Binary }] : []),
     { mode: 'changes' as const, label: t('rightPanelChanges'), icon: FileEdit },
     { mode: 'browser' as const, label: t('rightPanelBrowser'), icon: Globe2 }
   ]

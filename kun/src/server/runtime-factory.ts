@@ -15,6 +15,7 @@ import { buildGoalLocalTools } from '../adapters/tool/goal-tools.js'
 import { buildTodoLocalTools } from '../adapters/tool/todo-tools.js'
 import { LocalToolHost, buildDefaultLocalTools } from '../adapters/tool/local-tool-host.js'
 import { buildMcpToolProviders } from '../adapters/tool/mcp-tool-provider.js'
+import { buildReModeLocalTools } from '../adapters/tool/re-mode-tools.js'
 import { buildMemoryToolProviders } from '../adapters/tool/memory-tool-provider.js'
 import { buildDelegationToolProviders } from '../adapters/tool/delegation-tool-provider.js'
 import { buildWebToolProviders } from '../adapters/tool/web-tool-provider.js'
@@ -180,6 +181,16 @@ export async function createKunServeRuntime(
       enabled: true,
       available: true,
       tools: buildDefaultLocalTools()
+    },
+    {
+      id: 're-mode',
+      kind: 'built-in' as const,
+      enabled: true,
+      available: true,
+      tools: buildReModeLocalTools({
+        mcpCatalog: mcpProviders.catalog,
+        mcpDiagnostics: mcpProviders.diagnostics
+      })
     },
     ...mcpProviders.providers,
     ...webProviders.providers,

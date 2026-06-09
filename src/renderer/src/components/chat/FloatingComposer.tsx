@@ -12,6 +12,7 @@ import {
 import {
   Archive,
   BarChart3,
+  Binary,
   FileText,
   GitFork,
   ImagePlus,
@@ -85,8 +86,8 @@ type Props = {
   workspaceRootOverride?: string
   input: string
   setInput: (v: string) => void
-  mode: 'plan' | 'agent'
-  setMode: (m: 'plan' | 'agent') => void
+  mode: 'plan' | 'agent' | 're'
+  setMode: (m: 'plan' | 'agent' | 're') => void
   busy: boolean
   runtimeReady: boolean
   hasActiveThread: boolean
@@ -518,7 +519,7 @@ export function FloatingComposer({
     ? threads.find((thread) => thread.id === activeThreadId) ?? null
     : null
   const activeThreadArchived = activeThread?.archived === true
-  const showThreadUsageFooter = !compact && route === 'chat' && Boolean(activeThreadId) && runtimeReady
+  const showThreadUsageFooter = !compact && (route === 'chat' || route === 're') && Boolean(activeThreadId) && runtimeReady
   const threadUsageState = useThreadUsageState(
     activeThreadId,
     showThreadUsageFooter,
@@ -550,7 +551,7 @@ export function FloatingComposer({
     (fileReferenceEnabled && fileReferences.length > 0)
   )
   const canPickAttachment = canCompose && attachmentUploadEnabled && !attachmentUploadBusy
-  const showIntentToolbar = !compact && route === 'chat'
+  const showIntentToolbar = !compact && (route === 'chat' || route === 're')
   const showComposerMenuButton = showIntentToolbar
   const canTogglePlanMode = canCompose && Boolean(onPlanCommand)
   const canOpenGoalPanel = canCompose && route !== 'claw'
@@ -586,6 +587,8 @@ export function FloatingComposer({
             ? clawHasInboundConversation
               ? t('clawPlaceholder', { name: clawAgentName })
               : t('clawPlaceholderNeedsInbound')
+            : mode === 're'
+              ? t('composerRePlaceholder')
             : mode === 'plan'
               ? t('composerPlanPlaceholder')
               : hasActiveThread
@@ -1729,6 +1732,15 @@ export function FloatingComposer({
                       >
                         <ListTodo className="h-3.5 w-3.5" strokeWidth={1.9} />
                         <span>{t('slashCommandPlanTitle')}</span>
+                      </span>
+                    ) : null}
+                    {mode === 're' ? (
+                      <span
+                        className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full bg-ds-hover px-2.5 text-[13px] font-medium text-ds-muted"
+                        title={t('reverseEngineering')}
+                      >
+                        <Binary className="h-3.5 w-3.5" strokeWidth={1.9} />
+                        <span>{t('reModeShort')}</span>
                       </span>
                     ) : null}
                     {activeThreadGoal?.status === 'active' ? (

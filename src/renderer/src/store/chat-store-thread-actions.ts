@@ -141,13 +141,14 @@ export function createThreadActions(
       }
       const codeWorkspaceRoots = rememberCodeWorkspaceRoots(get().codeWorkspaceRoots, [workspaceRoot])
       set({ codeWorkspaceRoots })
+      const requestedMode = options.mode?.trim() || (get().route === 're' ? 're' : 'agent')
       const reusableThreadId = options.forceNew
         ? null
         : await findReusableEmptyThreadId(
             get(),
             p,
             workspaceRoot,
-            (thread) => isCodeThread(thread, get().clawChannels)
+            (thread) => isCodeThread(thread, get().clawChannels) && thread.mode === requestedMode
           )
       if (reusableThreadId) {
         if (get().activeThreadId !== reusableThreadId) {
@@ -160,7 +161,7 @@ export function createThreadActions(
       const t = await p.createThread({
         workspace: workspaceRoot,
         title: getDefaultThreadTitle(),
-        mode: 'agent'
+        mode: requestedMode
       })
       // Register + activate optimistically before refreshing. A freshly created
       // Kun thread may not be listed until the first message is written.
@@ -424,7 +425,7 @@ export function createThreadActions(
     const displayText = queued?.displayText ?? overrides?.displayText?.trim() ?? trimmedText
     const userDisplayText = displayText !== trimmedText ? displayText : undefined
     const generatedTitle = deriveThreadTitleFromPrompt(displayText)
-    const shouldAutoRenameForRoute = get().route === 'chat'
+    const shouldAutoRenameForRoute = get().route === 'chat' || get().route === 're'
     const activeThread = activeThreadId
       ? get().threads.find((thread) => thread.id === activeThreadId) ?? null
       : null
@@ -501,11 +502,12 @@ export function createThreadActions(
         }
         const codeWorkspaceRoots = rememberCodeWorkspaceRoots(get().codeWorkspaceRoots, [workspaceRoot])
         set({ codeWorkspaceRoots })
+        const requestedMode = mode?.trim() || (get().route === 're' ? 're' : 'agent')
         const reusableThreadId = await findReusableEmptyThreadId(
           get(),
           p,
           workspaceRoot,
-          (thread) => isCodeThread(thread, get().clawChannels)
+          (thread) => isCodeThread(thread, get().clawChannels) && thread.mode === requestedMode
         )
         const reusableThread = reusableThreadId
           ? get().threads.find((thread) => thread.id === reusableThreadId) ?? null
@@ -518,7 +520,7 @@ export function createThreadActions(
             ? await p.createThread({
                 workspace: workspaceRoot,
                 title: generatedTitle,
-                mode: mode ?? 'agent'
+                mode: requestedMode
               })
             : null
         const threadId = reusableThreadId ?? createdThread?.id ?? null

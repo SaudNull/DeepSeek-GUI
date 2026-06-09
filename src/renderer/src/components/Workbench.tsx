@@ -70,6 +70,8 @@ import {
   type ComposerFileContextEntry
 } from '../lib/composer-file-references'
 
+type WorkbenchComposerMode = 'plan' | 'agent' | 're'
+
 const ChangeInspector = lazy(() =>
   import('./ChangeInspector').then((module) => ({ default: module.ChangeInspector }))
 )
@@ -89,6 +91,9 @@ const PlanPanel = lazy(() =>
 )
 const TodoPanel = lazy(() =>
   import('./todo/TodoPanel').then((module) => ({ default: module.TodoPanel }))
+)
+const ReModePanel = lazy(() =>
+  import('./re/ReModePanel').then((module) => ({ default: module.ReModePanel }))
 )
 const ScheduleTasksView = lazy(() =>
   import('./schedule/ScheduleTasksView').then((module) => ({ default: module.ScheduleTasksView }))
@@ -239,6 +244,7 @@ export function Workbench(): ReactElement {
     setRoute,
     openCode,
     openWrite,
+    openRe,
     ensureWriteThreadForWorkspace,
     createWriteThread,
     openSettings,
@@ -295,6 +301,7 @@ export function Workbench(): ReactElement {
       setRoute: s.setRoute,
       openCode: s.openCode,
       openWrite: s.openWrite,
+      openRe: s.openRe,
       ensureWriteThreadForWorkspace: s.ensureWriteThreadForWorkspace,
       createWriteThread: s.createWriteThread,
       openSettings: s.openSettings,
@@ -333,7 +340,7 @@ export function Workbench(): ReactElement {
     }))
   )
   const [input, setInput] = useState('')
-  const [mode, setMode] = useState<'plan' | 'agent'>('agent')
+  const [mode, setMode] = useState<WorkbenchComposerMode>('agent')
   const [composerReasoningEffort, setComposerReasoningEffort] =
     useState<ComposerReasoningEffort>('max')
   const [runtimeInfo, setRuntimeInfo] = useState<CoreRuntimeInfoJson | null>(null)
@@ -703,7 +710,7 @@ export function Workbench(): ReactElement {
   }
 
   useEffect(() => {
-    if (route !== 'chat') setComposerFileReferences([])
+    if (route !== 'chat' && route !== 're') setComposerFileReferences([])
   }, [route])
 
   const handlePickAttachments = async (files: File[]): Promise<void> => {
@@ -1115,9 +1122,10 @@ export function Workbench(): ReactElement {
 
   const handleSendAsync = async (): Promise<void> => {
     const v = input.trim()
+    const chatLikeRoute = route === 'chat' || route === 're'
     const attachments = route === 'chat' ? composerAttachments : []
     const attachmentIds = attachments.map((attachment) => attachment.id)
-    const fileReferences = route === 'chat' ? composerFileReferences : []
+    const fileReferences = chatLikeRoute ? composerFileReferences : []
     const reasoningEffort = composerReasoningEffortRequestValue(composerReasoningEffort)
     if (!v && attachmentIds.length === 0 && fileReferences.length === 0) return
     const emptyPrompt =
@@ -1249,11 +1257,11 @@ export function Workbench(): ReactElement {
       setInput('')
       void (async () => {
         const taskResult = typeof window.dsGui?.createClawTaskFromText === 'function'
-          ? await window.dsGui.createClawTaskFromText(v, {
-              channelId: activeClawChannelId,
-              modelHint: activeClawChannel?.model,
-              mode
-            })
+            ? await window.dsGui.createClawTaskFromText(v, {
+                channelId: activeClawChannelId,
+                modelHint: activeClawChannel?.model,
+                mode: mode === 'plan' ? 'plan' : 'agent'
+              })
           : { kind: 'noop' as const }
         if (taskResult.kind === 'created') {
           appendLocalClawTurn(v, taskResult.confirmationText)
@@ -1282,7 +1290,8 @@ export function Workbench(): ReactElement {
     setInput('')
     clearComposerAttachments()
     clearComposerFileReferences()
-    void sendMessage(prepared.text, mode === 'plan' ? 'plan' : 'agent', {
+    const sendMode = route === 're' || mode === 're' ? 're' : mode === 'plan' ? 'plan' : 'agent'
+    void sendMessage(prepared.text, sendMode, {
       ...(prepared.displayText ? { displayText: prepared.displayText } : {}),
       ...(reasoningEffort ? { reasoningEffort } : {}),
       ...(attachmentIds.length ? { attachmentIds, attachments } : {})
@@ -1295,7 +1304,14 @@ export function Workbench(): ReactElement {
       useSddDraftStore.getState().clearActiveDraft()
     }
     setConnectPhoneSidebarOpen(false)
-    setRoute('chat')
+    const selected = threads.find((thread) => thread.id === id) ?? null
+    if (selected?.mode === 're') {
+      setMode('re')
+      setRoute('re')
+    } else {
+      if (mode === 're') setMode('agent')
+      setRoute('chat')
+    }
     void selectThread(id)
   }
 
@@ -1305,8 +1321,15 @@ export function Workbench(): ReactElement {
       useSddDraftStore.getState().clearActiveDraft()
     }
     setConnectPhoneSidebarOpen(false)
+    if (route === 're') {
+      setMode('re')
+      setRoute('re')
+      void createThread({ mode: 're' })
+      return
+    }
+    setMode('agent')
     setRoute('chat')
-    void createThread()
+    void createThread({ mode: 'agent' })
   }
 
   const startNewChatInWorkspace = (workspaceRoot: string): void => {
@@ -1315,17 +1338,33 @@ export function Workbench(): ReactElement {
       useSddDraftStore.getState().clearActiveDraft()
     }
     setConnectPhoneSidebarOpen(false)
+    if (route === 're') {
+      setMode('re')
+      setRoute('re')
+      void createThread({ workspaceRoot, mode: 're' })
+      return
+    }
+    setMode('agent')
     setRoute('chat')
-    void createThread({ workspaceRoot })
+    void createThread({ workspaceRoot, mode: 'agent' })
   }
 
   const openCodeMode = (): void => {
     setConnectPhoneSidebarOpen(false)
+    if (mode === 're') setMode('agent')
     void openCode()
+  }
+
+  const openReMode = (): void => {
+    setConnectPhoneSidebarOpen(false)
+    setMode('re')
+    void openRe()
+    setRightPanelMode('re')
   }
 
   const openWriteMode = (): void => {
     setConnectPhoneSidebarOpen(false)
+    if (mode === 're') setMode('agent')
     void openWrite()
   }
 
@@ -1349,11 +1388,13 @@ export function Workbench(): ReactElement {
     setConnectPhoneSidebarOpen((open) => !open)
   }
 
-  const sidebarView: 'chat' | 'write' | 'claw' | 'schedule' =
+  const sidebarView: 'chat' | 'write' | 're' | 'claw' | 'schedule' =
     route === 'claw' || (route === 'plugins' && pluginHostRoute === 'claw')
       ? 'claw'
       : route === 'schedule'
         ? 'schedule'
+      : route === 're'
+        ? 're'
       : route === 'write'
         ? 'write'
         : 'chat'
@@ -1498,6 +1539,14 @@ export function Workbench(): ReactElement {
                 onCollapse={closeRightPanel}
                 onBuildPlan={() => void buildGuiPlan()}
               />
+            ) : rightPanelMode === 're' ? (
+              <ReModePanel
+                className="h-full max-h-full w-full"
+                onCollapse={closeRightPanel}
+                onUsePrompt={(prompt) => {
+                  setInput((current) => current.trim() ? `${current.trim()}\n\n${prompt}` : prompt)
+                }}
+              />
             ) : (
               <WorkspaceFilePreviewPanel
                 target={filePreviewTarget}
@@ -1525,6 +1574,7 @@ export function Workbench(): ReactElement {
                 activeView={sidebarView}
                 connectPhoneSidebarOpen={connectPhoneSidebarOpen}
                 onCodeOpen={openCodeMode}
+                onReOpen={openReMode}
                 onWriteOpen={openWriteMode}
                 onOpenSettings={(section) => openSettings(section)}
                 onToggleConnectPhone={toggleConnectPhone}
@@ -1554,6 +1604,7 @@ export function Workbench(): ReactElement {
               onOpenPlugins={openPluginsView}
               onToggleConnectPhone={toggleConnectPhone}
               onCodeOpen={openCodeMode}
+              onReOpen={openReMode}
               onWriteOpen={openWriteMode}
               onScheduleOpen={openScheduleView}
               onToggleSidebar={toggleLeftSidebar}
@@ -1657,6 +1708,7 @@ export function Workbench(): ReactElement {
                     rightPanelMode={rightPanelMode}
                     onToggleRightPanelMode={toggleRightPanelMode}
                     planPanelEnabled={Boolean(activeGuiPlan)}
+                    rePanelEnabled={route === 're'}
                     sideChatCount={currentSideConversations.length}
                     sideChatRunningCount={currentSideRunningCount}
                     sideChatOpen={sidePanel.open}
@@ -1706,7 +1758,7 @@ export function Workbench(): ReactElement {
                 composerPickList={composerPickList}
                 composerModelGroups={composerModelGroups}
                 composerReasoningEffort={
-                  route === 'chat' || route === 'claw' ? composerReasoningEffort : undefined
+                  route === 'chat' || route === 're' || route === 'claw' ? composerReasoningEffort : undefined
                 }
                 onComposerModelChange={(modelId) => {
                   if (route === 'claw' && activeClawChannelId) {
@@ -1716,14 +1768,14 @@ export function Workbench(): ReactElement {
                   setComposerModel(modelId)
                 }}
                 onComposerReasoningEffortChange={
-                  route === 'chat' || route === 'claw' ? setComposerReasoningEffort : undefined
+                  route === 'chat' || route === 're' || route === 'claw' ? setComposerReasoningEffort : undefined
                 }
                 onSend={handleSend}
                 attachments={composerAttachments}
                 attachmentUploadEnabled={attachmentUploadEnabled}
                 attachmentUploadBusy={attachmentUploadBusy}
                 attachmentUploadError={attachmentUploadError}
-                fileReferenceEnabled={route === 'chat' && !activeSddDraft}
+                fileReferenceEnabled={(route === 'chat' || route === 're') && !activeSddDraft}
                 fileReferences={composerFileReferences}
                 webAccessAvailable={webAccessAvailable}
                 skillCommands={runtimeSkills}

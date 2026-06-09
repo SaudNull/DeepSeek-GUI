@@ -73,7 +73,7 @@ export type SendMessageOverrides = {
 
 export type InitialSetupMode = 'required' | 'preview'
 export type SettingsRouteSection = 'general' | 'write' | 'agents' | 'skill' | 'mcp' | 'shortcuts' | 'claw'
-export type AppRoute = 'chat' | 'write' | 'settings' | 'plugins' | 'claw' | 'schedule'
+export type AppRoute = 'chat' | 'write' | 're' | 'settings' | 'plugins' | 'claw' | 'schedule'
 export type PluginHostRoute = 'chat' | 'claw'
 
 /**
@@ -163,6 +163,7 @@ export type ChatState = {
   setRoute: (r: AppRoute) => void
   openWrite: () => Promise<void>
   openCode: () => Promise<void>
+  openRe: () => Promise<void>
   ensureWriteThreadForWorkspace: (workspaceRoot?: string) => Promise<string | null>
   createWriteThread: (workspaceRoot?: string) => Promise<string | null>
   selectWriteThread: (threadId: string, workspaceRoot?: string) => Promise<void>
@@ -199,7 +200,7 @@ export type ChatState = {
   refreshThreads: () => Promise<void>
   setThreadSearch: (query: string) => void
   setShowArchivedThreads: (show: boolean) => void
-  createThread: (options?: { workspaceRoot?: string; forceNew?: boolean }) => Promise<void>
+  createThread: (options?: { workspaceRoot?: string; forceNew?: boolean; mode?: string }) => Promise<void>
   selectThread: (id: string) => Promise<void>
   recoverActiveTurn: () => Promise<boolean>
   sendMessage: (text: string, mode?: string, overrides?: SendMessageOverrides) => Promise<boolean>

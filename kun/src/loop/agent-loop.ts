@@ -70,6 +70,7 @@ import { CREATE_PLAN_TOOL_NAME } from '../adapters/tool/create-plan-tool.js'
 import { GET_GOAL_TOOL_NAME, UPDATE_GOAL_TOOL_NAME } from '../adapters/tool/goal-tools.js'
 import { TODO_LIST_TOOL_NAME, TODO_WRITE_TOOL_NAME } from '../adapters/tool/todo-tools.js'
 import { shellRuntimeInstruction } from '../adapters/tool/builtin-tool-utils.js'
+import { RE_MODE_INSTRUCTION } from '../re-mode/re-mode-prompt.js'
 
 const PARALLEL_READ_ONLY_TOOL_NAMES = new Set(['read', 'grep', 'find', 'ls'])
 const MAX_PARALLEL_TOOL_CALLS = 3
@@ -519,6 +520,7 @@ export class AgentLoop {
       workspace: thread?.workspace ?? ''
     })
     const planTurnActive = effectiveMode === 'plan' || Boolean(activePlanContext)
+    const reTurnActive = !planTurnActive && effectiveMode === 're'
     const activeGoalInstruction = planTurnActive
       ? null
       : goalContinuationInstruction(thread?.goal)
@@ -622,7 +624,11 @@ export class AgentLoop {
       turnId,
       model,
       systemPrompt: this.opts.prefix.systemPrompt,
-      ...(planTurnActive ? { modeInstruction: PLAN_MODE_INSTRUCTION } : {}),
+      ...(planTurnActive
+        ? { modeInstruction: PLAN_MODE_INSTRUCTION }
+        : reTurnActive
+          ? { modeInstruction: RE_MODE_INSTRUCTION }
+          : {}),
       ...(contextInstructions.length ? { contextInstructions } : {}),
       prefix: this.opts.prefix.fewShots,
       history,
@@ -932,7 +938,7 @@ export class AgentLoop {
     threadId: string
     turnId: string
     workspace: string
-    threadMode?: 'agent' | 'plan'
+    threadMode?: 'agent' | 'plan' | 're'
     activePlanContext?: GuiPlanContext
     modelCapabilities: ModelCapabilityMetadata
     activeSkillIds: readonly string[]
@@ -1040,7 +1046,7 @@ export class AgentLoop {
     threadId: string
     turnId: string
     workspace: string
-    threadMode?: 'agent' | 'plan'
+    threadMode?: 'agent' | 'plan' | 're'
     activePlanContext?: GuiPlanContext
     modelCapabilities: ModelCapabilityMetadata
     activeSkillIds: readonly string[]

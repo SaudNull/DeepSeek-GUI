@@ -23,8 +23,8 @@ import type { ComposerReasoningEffort } from '../chat/FloatingComposerModelPicke
 type Props = {
   input: string
   setInput: (value: string) => void
-  mode: 'plan' | 'agent'
-  setMode: (value: 'plan' | 'agent') => void
+  mode: 'plan' | 'agent' | 're'
+  setMode: (value: 'plan' | 'agent' | 're') => void
   busy: boolean
   runtimeConnection: RuntimeConnectionStatus
   activeThreadId: string | null

@@ -38,11 +38,11 @@ type PlanTurnOverrides = Pick<
 type WorkbenchPlanControllerOptions = {
   blocks: ChatBlock[]
   busy: boolean
-  mode: 'plan' | 'agent'
+  mode: 'plan' | 'agent' | 're'
   route: ChatState['route']
   sendMessage: ChatState['sendMessage']
   setError: ChatState['setError']
-  setMode: Dispatch<SetStateAction<'plan' | 'agent'>>
+  setMode: Dispatch<SetStateAction<'plan' | 'agent' | 're'>>
   setRightPanelMode: Dispatch<SetStateAction<RightPanelMode>>
   setRightSidebarWidth: Dispatch<SetStateAction<number>>
   t: (key: string) => string
@@ -284,7 +284,7 @@ export function useWorkbenchPlanController({
 
   useEffect(() => {
     if (route !== 'chat' && mode === 'plan') {
-      setMode('agent')
+      setMode(route === 're' ? 're' : 'agent')
     }
   }, [mode, route, setMode])
 

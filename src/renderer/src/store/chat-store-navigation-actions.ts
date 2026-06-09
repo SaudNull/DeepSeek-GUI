@@ -103,7 +103,7 @@ let clawChannelActivityUnsubscribe: (() => void) | null = null
 
 export function createNavigationActions(
   { set, get, sseAbortRef }: StoreActionContext
-): Pick<ChatState, 'openCode' | 'openWrite' | 'ensureWriteThreadForWorkspace' | 'createWriteThread' | 'selectWriteThread' | 'probeRuntime' | 'boot' | 'chooseWorkspace' | 'clearWorkspace' | 'deleteWorkspace' | 'refreshThreads' | 'setThreadSearch' | 'setShowArchivedThreads'> {
+): Pick<ChatState, 'openCode' | 'openWrite' | 'openRe' | 'ensureWriteThreadForWorkspace' | 'createWriteThread' | 'selectWriteThread' | 'probeRuntime' | 'boot' | 'chooseWorkspace' | 'clearWorkspace' | 'deleteWorkspace' | 'refreshThreads' | 'setThreadSearch' | 'setShowArchivedThreads'> {
   return {
   openCode: async () => {
     const state = get()
@@ -138,6 +138,46 @@ export function createNavigationActions(
     set({
       ...clearedThreadSelection(),
       route: 'chat',
+      watchTurnCompletion: nextWatch
+    })
+    syncTurnCompletionPoll(set, get)
+  },
+
+  openRe: async () => {
+    const state = get()
+    const activeThread = state.activeThreadId
+      ? state.threads.find((thread) => thread.id === state.activeThreadId) ?? null
+      : null
+    if (activeThread && isCodeThread(activeThread, state.clawChannels) && activeThread.mode === 're') {
+      set({ route: 're' })
+      return
+    }
+
+    const reThreads = state.threads.filter((thread) =>
+      isCodeThread(thread, state.clawChannels) && thread.mode === 're'
+    )
+    const selectedWorkspace = normalizeWorkspaceRoot(state.workspaceRoot)
+    const target =
+      latestThread(reThreads.filter((thread) => threadBelongsToWorkspace(thread, selectedWorkspace))) ??
+      latestThread(reThreads)
+
+    set({ route: 're' })
+    if (target && state.runtimeConnection === 'ready') {
+      await get().selectThread(target.id)
+      return
+    }
+
+    sseAbortRef.current?.abort()
+    sseAbortRef.current = null
+    clearBusyWatchdog()
+    const nextWatch = { ...state.watchTurnCompletion }
+    if (state.activeThreadId && state.busy) {
+      nextWatch[state.activeThreadId] = true
+      watchTurnCompletionNotification(state.activeThreadId)
+    }
+    set({
+      ...clearedThreadSelection(),
+      route: 're',
       watchTurnCompletion: nextWatch
     })
     syncTurnCompletionPoll(set, get)
@@ -597,7 +637,7 @@ export function createNavigationActions(
           sddThreadRegistry
         )
       const activeThreadFilteredFromCodeSidebar =
-        get().route === 'chat' &&
+        (get().route === 'chat' || get().route === 're') &&
         activeId != null &&
         !activeThreadIsSdd &&
         threads.some((thread) => thread.id === activeId) &&
@@ -637,7 +677,7 @@ export function createNavigationActions(
         ? displayThreads.find((thread) => thread.id === activeThreadId) ?? null
         : null
       const activeThreadIsManagedInCodeRoute =
-        get().route === 'chat' &&
+        (get().route === 'chat' || get().route === 're') &&
         activeThread != null &&
         (isWriteThreadId(activeThread.id, writeRegistry) ||
           isClawThread(activeThread, get().clawChannels))

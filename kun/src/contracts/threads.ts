@@ -5,7 +5,7 @@ import { ApprovalPolicySchema, DEFAULT_APPROVAL_POLICY, SandboxModeSchema } from
 export const ThreadStatus = z.enum(['idle', 'running', 'archived', 'deleted'])
 export type ThreadStatus = z.infer<typeof ThreadStatus>
 
-export const ThreadMode = z.enum(['agent', 'plan'])
+export const ThreadMode = z.enum(['agent', 'plan', 're'])
 export type ThreadMode = z.infer<typeof ThreadMode>
 
 /**

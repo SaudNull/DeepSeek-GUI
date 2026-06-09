@@ -1,16 +1,18 @@
 import type { ReactElement } from 'react'
-import { Code2, PencilLine } from 'lucide-react'
+import { Binary, Code2, PencilLine } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 type Props = {
-  activeView: 'chat' | 'write' | 'claw' | 'schedule'
+  activeView: 'chat' | 'write' | 're' | 'claw' | 'schedule'
   onCodeOpen: () => void
+  onReOpen: () => void
   onWriteOpen: () => void
 }
 
 export function WorkspaceModeTabs({
   activeView,
   onCodeOpen,
+  onReOpen,
   onWriteOpen
 }: Props): ReactElement {
   const { t } = useTranslation('common')
@@ -32,7 +34,7 @@ export function WorkspaceModeTabs({
   return (
     <div
       role="tablist"
-      aria-label={`${t('code')} / ${t('write')}`}
+      aria-label={`${t('code')} / ${t('write')} / ${t('reverseEngineering')}`}
       className="mb-2 flex flex-row gap-1 rounded-[8px] border border-[var(--ds-sidebar-row-ring)] bg-[color-mix(in_srgb,var(--ds-sidebar-field-bg)_84%,transparent)] p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.62)] dark:bg-white/[0.035] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.035)]"
     >
       <button
@@ -46,6 +48,18 @@ export function WorkspaceModeTabs({
           <Code2 className="h-3.5 w-3.5" strokeWidth={1.9} />
         </span>
         <span className="truncate">{t('code')}</span>
+      </button>
+      <button
+        type="button"
+        role="tab"
+        aria-selected={activeView === 're'}
+        onClick={onReOpen}
+        className={tabClass(activeView === 're')}
+      >
+        <span className={iconClass(activeView === 're')}>
+          <Binary className="h-3.5 w-3.5" strokeWidth={1.9} />
+        </span>
+        <span className="truncate">{t('reModeShort')}</span>
       </button>
       <button
         type="button"

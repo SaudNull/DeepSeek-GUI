@@ -47,8 +47,11 @@ function isBundleLike(path) {
 }
 
 function isLikelySignedFile(path, info) {
-  if (/\.(dylib|node|so)$/i.test(path)) return true
-  return info.isFile() && (info.mode & 0o111) !== 0 && /\/Contents\/(?:MacOS|Frameworks)\//.test(path)
+  const normalizedPath = path.replace(/\\/g, '/')
+  if (/\.(dylib|node|so)$/i.test(normalizedPath)) return true
+  if (!info.isFile()) return false
+  if (/\/Contents\/MacOS\/[^/]+$/.test(normalizedPath)) return true
+  return (info.mode & 0o111) !== 0 && /\/Contents\/(?:MacOS|Frameworks)\//.test(normalizedPath)
 }
 
 function collectSignedCodeCandidates(appBundle) {

@@ -53,11 +53,11 @@ export type ToolHostContext = {
   turnId: string
   workspace: string
   /**
-   * Thread mode advertised by the GUI. Kun restricts plan tools
-   * to `plan` threads plus `planDraft`/`planRefine` turn kinds. The
+   * Thread mode advertised by the GUI. Kun restricts mode-scoped tools
+   * such as Plan and Reverse Engineering tools through this value. The
    * field is optional for backward compatibility with older call sites.
    */
-  threadMode?: 'agent' | 'plan'
+  threadMode?: 'agent' | 'plan' | 're'
   /** Optional GUI plan context (see above). */
   guiPlan?: GuiPlanContext
   /** Active model capability metadata used by capability-aware providers. */

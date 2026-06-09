@@ -9,7 +9,7 @@ import { ApprovalPolicySchema } from './policy.js'
  * `threads.ts` already imports `TurnSchema` from this file. The two
  * literals must stay in sync with `ThreadMode` in `threads.ts`.
  */
-const TurnModeSchema = z.enum(['agent', 'plan'])
+const TurnModeSchema = z.enum(['agent', 'plan', 're'])
 export const TurnReasoningEffortSchema = z.enum(['auto', 'off', 'low', 'medium', 'high', 'max'])
 export type TurnReasoningEffort = z.infer<typeof TurnReasoningEffortSchema>
 
