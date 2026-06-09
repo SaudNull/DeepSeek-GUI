@@ -99,7 +99,7 @@ npm run dev
 
 当你的改动会影响项目使用方式或协作方式时，请同步更新相关文档：
 
-- `README.md` 和 `README.en.md`：项目级说明
+- `README.md` 和 `README.zh-CN.md`：项目级说明
 - `docs/DEVELOPMENT.md` 和 `docs/DEVELOPMENT.zh-CN.md`：开发流程与协作规范
 - 当前这份贡献说明：当贡献标准发生变化时更新
 

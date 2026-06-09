@@ -1,146 +1,219 @@
 <p align="center">
-  <img src="src/asset/img/deepseek.png" width="96" alt="DeepSeek GUI 图标">
+  <img src="src/asset/img/deepseek.png" width="96" alt="DeepSeek GUI icon">
 </p>
 
-# DeepSeek GUI
+# DeepSeek-GUI + Reverse Engineering Mode
 
-[English](./README.en.md) | 简体中文
+English | [中文](./README.zh-CN.md)
 
-> 把 Kun 的高 Token ROI 本地智能体能力带进桌面窗口：**Code** 处理项目、**写作**打磨文档、**连接手机**接入 IM 与定时任务——让每一个 token 尽量花在需求、代码、决策和结果上。
+> A DeepSeek-first desktop AI workbench with a new experimental RE Mode for binary triage, protected software analysis, behavior correlation, and optional Ghidra MCP workflows.
 
-[官网](https://deepseek-gui.com) | [下载](https://deepseek-gui.com)
+[Website](https://deepseek-gui.com) | [Download](https://deepseek-gui.com)
 
 [![GitHub release](https://img.shields.io/github/v/release/XingYu-Zhong/DeepSeek-GUI?label=github)](https://github.com/XingYu-Zhong/DeepSeek-GUI/releases)
 [![License](https://img.shields.io/github/license/XingYu-Zhong/DeepSeek-GUI)](./LICENSE)
 
-DeepSeek GUI 是一个面向开发者和高频 AI 工作者的本地桌面工作台。它以 Kun 为唯一运行时，把终端里的智能体体验整理成更容易上手、更适合长期使用的应用：选择工作目录，发起任务，实时查看推理、工具调用和文件改动，并在需要时审批或回退。
+DeepSeek GUI is a local desktop workbench for developers and frequent AI users. It uses Kun as the only runtime and turns the terminal agent experience into an easier, longer-lived app: choose a workspace, start a task, watch reasoning and tool calls stream in, review file changes, and approve sensitive actions when needed.
 
-这个项目的目标不是再造一个聊天壳，而是让 DeepSeek 变成一个可以稳定参与真实项目工作的桌面伙伴。Kun 的核心优势是高 Token ROI：同样的上下文预算，少浪费在重复前缀、庞大工具目录和失控输出上，多投入到真正推动任务完成的信息里。
+The goal is not to ship another chat wrapper. The goal is to make DeepSeek feel like a reliable desktop partner for real project work. Kun's core advantage is high token ROI: the same context budget spends less on repeated prefixes, giant tool catalogs, and runaway output, and more on the information that actually moves the task forward.
+
+## What this fork adds
+
+- **Reverse Engineering Mode** as a dedicated Kun mode and GUI entry point.
+- Binary triage for PE / ELF / Mach-O / APK and related file formats.
+- Static analysis helpers for hashes, strings, entropy, imports, exports, sections, and format detection.
+- IOC extraction, capability scoring, packer indicators, and obfuscation indicators.
+- Protected / obfuscated binary analysis with VMProtect / Themida-like virtualization indicators.
+- VM dispatcher and VM handler candidate detection.
+- Decode/decrypt loop candidates and dynamic API resolution indicators.
+- A persistent behavior/evidence graph for linking blobs, decoders, decoded artifacts, consumers, and capabilities.
+- High-value RE target ranking with confidence-rated reasons.
+- Persistent `.re-mode/` workspace artifacts for long-running analysis sessions.
+- Optional Ghidra MCP-aware function analysis with graceful fallback to local helpers and saved artifacts.
+
+| Feature | Description |
+| --- | --- |
+| **RE Mode** | Dedicated Reverse Engineering mode with its own prompt, tool surface, UI entry point, and output style. |
+| **Binary Triage** | Detects format, computes hashes, summarizes sections, imports, exports, strings, entropy, IOCs, and capability hints. |
+| **Protected Binary Analysis** | Heuristic-based candidate detection for packers, virtualization, decode/decrypt loops, dynamic API resolution, and suspicious memory permissions. |
+| **Behavior Graph** | Stores relationships such as high-entropy blob -> decoder -> decoded artifact -> consumer -> capability. |
+| **Ghidra MCP-aware Workflow** | Uses connected Ghidra MCP backends for decompiler output, xrefs, call graphs, symbols, comments, and renames when available. |
+| **Persistent RE Workspace** | Saves normalized analysis state, IOCs, symbols, notes, function summaries, raw output, and reports under `.re-mode/`. |
+| **Report Generation** | Generates Markdown reverse engineering reports from saved state and analysis findings. |
+
+## Workflow examples
+
+```text
+Triage this binary.
+Analyze protection/obfuscation.
+Find virtualization indicators.
+Find VM dispatcher candidates.
+Find decrypt/decode stages.
+Build a behavior graph.
+Rank the top 10 functions to reverse first.
+Use Ghidra MCP to explain function 0x1400129A0.
+Generate a reverse engineering report.
+```
+
+## `.re-mode/` artifacts
+
+RE Mode keeps high-volume tool output out of the chat context and writes reusable state to the workspace:
+
+- `.re-mode/analysis.json`: current sample metadata, hashes, format, sections, imports, exports, entropy, capability hints, and summaries.
+- `.re-mode/iocs.json`: URLs, domains, IPs, emails, registry keys, paths, commands, encoded blobs, crypto constants, and suspicious APIs.
+- `.re-mode/symbols.json`: function renames, variable renames, labels, symbol notes, and confidence.
+- `.re-mode/behavior-graph.json`: evidence graph linking functions, sections, blobs, imports, capabilities, decoded artifacts, and stages.
+- `.re-mode/report.md`: generated reverse engineering report.
+- `.re-mode/raw/`: raw local and external tool output kept available on disk.
+- `.re-mode/functions/`: normalized function summaries, including Ghidra-derived context when available.
+
+## Optional Ghidra MCP workflow
+
+RE Mode is **Ghidra MCP-aware**. If a Ghidra MCP server is connected, RE Mode can use it for decompiler output, disassembly, xrefs, call graphs, symbols, function summaries, renames, and comments when supported. If Ghidra MCP is not available, RE Mode still works with local helpers, generic MCP discovery, saved `.re-mode/` artifacts, and user-provided snippets.
+
+Detailed docs: [`docs/re-mode.md`](docs/re-mode.md). Chinese docs: [`docs/re-mode.zh-CN.md`](docs/re-mode.zh-CN.md).
+
+## Upstream
+
+This fork is based on the original project: <https://github.com/XingYu-Zhong/DeepSeek-GUI>.
 
 ---
 
 <p align="center">
   <a href="src/asset/img/code.mp4">
-    <img src="src/asset/img/code.gif" width="410" alt="DeepSeek GUI Code 模式演示">
+    <img src="src/asset/img/code.gif" width="410" alt="DeepSeek GUI Code mode demo">
   </a>
   <a href="src/asset/img/write.mp4">
-    <img src="src/asset/img/write.gif" width="410" alt="DeepSeek GUI 写作模式演示">
+    <img src="src/asset/img/write.gif" width="410" alt="DeepSeek GUI Write mode demo">
   </a>
 </p>
 
-## 更多演示
+## More Demos
 
 <p align="center">
   <a href="src/asset/img/feishu.mp4">
-    <img src="src/asset/img/feishu.gif" width="680" alt="飞书 / Lark / 微信连接演示">
+    <img src="src/asset/img/feishu.gif" width="680" alt="Feishu / Lark / WeChat connection demo">
   </a>
 </p>
-<p align="center"><em>飞书 / Lark / 微信连接演示。</em></p>
+<p align="center"><em>Feishu / Lark / WeChat connection demo.</em></p>
 
 <p align="center">
   <a href="src/asset/img/sdd.mp4">
-    <img src="src/asset/img/sdd.gif" width="680" alt="新建需求与计划演示">
+    <img src="src/asset/img/sdd.gif" width="680" alt="Requirement drafting and planning demo">
   </a>
 </p>
-<p align="center"><em>新建需求与计划演示。</em></p>
+<p align="center"><em>Requirement drafting and planning demo.</em></p>
 
 <p align="center">
   <a href="src/asset/img/web.mp4">
-    <img src="src/asset/img/web.gif" width="680" alt="Web 工具演示">
+    <img src="src/asset/img/web.gif" width="680" alt="Web tools demo">
   </a>
 </p>
-<p align="center"><em>Web 工具演示。</em></p>
+<p align="center"><em>Web tools demo.</em></p>
 
-## Kun 为什么 Token ROI 高
+## Why Kun Delivers High Token ROI
 
-Kun 把“省 token”做成 agent loop 的默认行为，而不是事后补救。它不只是压缩文本，更是在每一轮调用前判断哪些信息值得进入上下文。
+Kun makes token economy the default behavior of the agent loop, not a cleanup step after the fact. It does more than compress text: before each model call, it decides which information is worth entering context.
 
-| Kun 优势 | Token ROI 来源 |
+| Kun advantage | Where the ROI comes from |
 | --- | --- |
-| **Cache-first agent loop** | 稳定 system prompt、工具 schema 和不可变前缀，让 DeepSeek 原生缓存更容易命中，长会话不必反复为同一段背景付费。 |
-| **按需工具上下文** | MCP 工具很多时，先用 `mcp_search` 找相关工具，再描述和调用目标工具，避免每轮把完整工具目录塞进 prompt。 |
-| **上下文卫生** | 对超长工具结果、长参数、base64 payload、重复工具循环和低价值历史做边界压缩，保留代码、路径、错误、决策和未解决事项。 |
-| **可见的用量收益** | 运行时跟踪 cache hit/miss、token 用量和节省估算，GUI 会把 Token economy 的收益显示出来，方便长期观察成本回报。 |
+| **Cache-first agent loop** | Stable system prompts, tool schemas, and immutable prefixes make DeepSeek-native cache hits more likely, so long sessions do not keep paying for the same background. |
+| **Tool context on demand** | When MCP catalogs are large, Kun can search for relevant tools first, then describe and call the target tool instead of sending every tool schema on every turn. |
+| **Context hygiene** | Long tool results, long arguments, base64 payloads, repeated tool loops, and low-value history are bounded while code, paths, errors, decisions, and open tasks are preserved. |
+| **Visible usage payback** | Runtime telemetry tracks cache hit/miss, token usage, and estimated savings; the GUI surfaces Token economy savings so cost return is observable over time. |
 
-结果是：Kun 更适合真实项目里的长任务、长会话和多工具协作。它把模型注意力留给高价值上下文，让用户用同样的 API 预算换到更多有效推进。
+The result: Kun is built for real project work with long tasks, long sessions, and many tools. It keeps the model's attention on high-value context, helping the same API budget produce more useful progress.
 
-## 我们做了什么
+## What We Built
 
-- 把 Kun 本地运行时封装进桌面应用，默认可以自动启动和管理。
-- 做了一套完整的聊天工作台，支持多会话、实时流式输出、历史回看、中断和重新发送。
-- 打通本地工作目录，让智能体可以围绕真实项目读取、编辑和创建文件。
-- 做了文件变更审查视图，让每一次修改都能被看见、理解和确认。
-- 做了首次引导、设置页、语言/主题/字体大小、系统通知、错误日志和更新入口。
-- 做了 Skill 与 MCP 的图形化管理，让用户不用手写很多配置也能扩展智能体能力。
-- 做了连接手机能力，支持飞书 / Lark / 微信接入、独立 IM Agent、本地 webhook / relay 和定时任务。
-- 做了 Write 写作工作台，提供独立写作空间、Markdown 文件树、live 编辑/预览、文本补全和选中文本 inline agent。
-- 做了新建需求、计划面板、线程 Todo、目标追踪和代码审查，让任务可以从想法走到执行再走到复盘。
-- 提供 macOS、Windows、Linux 预构建安装包；也可以从源码自行构建。
+- A desktop app around the Kun local runtime, with default runtime auto-start and management.
+- A full chat workbench with multiple sessions, streaming output, history, interruption, and resend flows.
+- Local workspace integration so the agent can read, edit, and create files in real projects.
+- Change review surfaces that make every file modification visible and inspectable.
+- First-run onboarding, settings, language/theme/font controls, notifications, local logs, and update entry points.
+- Graphical Skill and MCP management so users can extend the agent without hand-editing every config file.
+- Connect phone automation with Feishu / Lark / WeChat integration, dedicated IM agents, local webhook / relay support, and scheduled tasks.
+- A dedicated Write workbench with writing spaces, a Markdown file tree, live editing/preview, inline completion, and selection-based inline agent actions.
+- New requirement drafts, plans, thread todos, long-running goals, and code review so tasks can move from idea to execution to review.
+- Pre-built macOS, Windows, and Linux installers; source builds remain available.
 
-## 功能亮点
+## Highlights
 
-- **桌面聊天工作台**：多会话、流式回复、推理过程、工具调用、审批请求和文件改动都在同一个界面中展示。
-- **项目级工作区**：为每个任务选择本地目录，按工作区管理会话，并支持文件预览、编辑器打开和 Git 分支选择。
-- **新建需求**：先写需求草稿（背景、目标、验收标准），让需求 AI 帮忙澄清问题和补齐调研，再一键生成实施计划。
-- **计划与 Todo**：`/plan` 或新建需求都会生成可编辑的计划文件，右侧计划面板会同步线程 Todo，方便把长任务拆成可跟踪步骤。
-- **目标模式**：`/goal` 可以给当前会话设置长期目标，支持暂停、继续、清除和完成状态，让 agent 持续围绕同一个结果推进。
-- **代码审查**：`/review` 可审查当前未提交改动，也可以指定 base branch、commit 或自定义审查范围，结果以 findings 卡片呈现。
-- **旁支对话与会话管理**：`/btw` 可开启继承当前上下文的旁支对话；会话还支持压缩、分叉、归档和恢复。
-- **变更审查**：内联 diff 和侧边审查面板会记录智能体产生的文件改动，便于在应用内完成 review。
-- **权限可控**：支持只读、工作区可写、完全访问等模式，并可配置工具调用前是否需要审批。
-- **运行时托管**：默认使用内置 Kun；也可以在设置中指定自己的 `kun` 可执行文件。
-- **Skill 与 MCP**：在图形界面中创建 Skill、保存 MCP 配置、添加常用工具，并打开对应目录继续管理。
-- **可开关的 agent 扩展能力**：Kun 通过配置开关逐步启用 MCP、Web fetch/search、Skills、独立 CLI、图片附件、跨会话 Memory 和子 agent 委派；设置页会显示运行时实际上报的能力与诊断状态。
-- **连接手机**：可开启独立于普通聊天的后台 Agent，当前支持飞书 / Lark / 微信接入、IM webhook / relay，以及按计划自动执行任务。
-- **定时任务**：创建一次性、每日、间隔或手动任务，指定工作区、模型和推理强度，让 Kun 在电脑唤醒时自动执行。
-- **Write 写作模式**：独立管理 `~/.deepseekgui/write_workspace` 和自定义写作空间，读取 Markdown 文件树，支持 live Markdown 编辑、相对图片预览、DeepSeek FIM 短补全 / 灵感长补全（可用跨文本 BM25 + 关键词检索增强）、当前文档导出为 `HTML / PDF / DOC / DOCX`，以及选中文本后直接唤起 inline 写作助手。
-- **Reverse Engineering 逆向工程模式**：面向 PE / ELF / Mach-O / APK 等二进制样本做 triage，提取哈希、节区、导入导出、字符串、IOC、熵和能力线索，将分析状态保存到 `.re-mode/`，并用证据图分析加壳、混淆和保护逻辑；连接 Ghidra MCP 时可读取函数、反编译、xref 与调用图，缺失时自动回退到本地工具和已保存产物。
-- **高 Token ROI**：Kun 会稳定 prompt 前缀、跟踪 DeepSeek 原生缓存命中、按需压缩上下文和工具输出，并用 MCP search 渐进发现工具，把 token 留给需求、代码、决策和结果。
-- **首次配置友好**：首次启动会引导你选择语言、填写 DeepSeek API Key，并按需配置兼容服务地址。
-- **本地优先**：设置、会话状态、日志和运行时配置保存在本机；模型调用使用你自己的 DeepSeek API Key。
-- **中英文界面**：应用和 README 均提供中文、英文版本，界面语言可随时切换。
-- **跨平台使用**：提供 macOS `.dmg/.zip`、Windows `.exe`、Linux `.AppImage`；也可以从源码构建。
+- **Desktop chat workbench**: multi-session chat with streamed replies, reasoning, tool calls, approval requests, and file changes in one place.
+- **Project workspaces**: choose a local directory for each task, organize sessions by workspace, preview files, open files in your editor, and pick Git branches.
+- **New requirements**: draft background, goals, and acceptance criteria; ask Requirement AI to clarify missing questions or research options; then generate an implementation plan.
+- **Plans and todos**: `/plan` and New requirement both create editable plan files, while the right-side Plan panel syncs thread todos for trackable execution.
+- **Goals**: `/goal` sets a long-running objective for the current thread, with pause, resume, clear, and complete states so the agent can keep working toward the same outcome.
+- **Code review**: `/review` can inspect current uncommitted changes, a base branch diff, a commit, or custom review instructions, with findings shown as review cards.
+- **Side conversations and thread control**: `/btw` opens a context-inheriting side conversation; threads also support compact, fork, archive, and restore flows.
+- **Change review**: inline diffs and a side review panel help you understand exactly what the agent changed.
+- **Controlled permissions**: choose read-only, workspace-write, full-access, or external sandbox modes, and decide when tool calls require approval.
+- **Managed runtime**: use the bundled Kun by default, or point the app at your own `kun` executable.
+- **Skill and MCP support**: create Skills, edit MCP config, add common tools, and open the related folders from the UI.
+- **Feature-flagged agent extensions**: Kun can enable MCP, web fetch/search, Skills, standalone CLI use, image attachments, cross-session memory, and delegated subagents by config; Settings shows the runtime-reported capability and diagnostics state.
+- **Connect phone**: run a background agent alongside normal chat, with current support for Feishu / Lark / WeChat, IM webhook / relay flows, and scheduled tasks.
+- **Scheduled tasks**: create one-time, daily, interval, or manual tasks with their own workspace, model, and reasoning effort so Kun can run while the computer is awake.
+- **Write mode**: manage `~/.deepseekgui/write_workspace` and custom writing spaces, browse Markdown files, use live Markdown editing, preview relative images, get DeepSeek FIM short completion / inspiration completion with optional cross-document BM25 + keyword retrieval, export the current document as `HTML / PDF / DOC / DOCX`, and invoke the writing assistant directly from selected text.
+- **Reverse Engineering mode**: triage PE / ELF / Mach-O / APK binaries, extract hashes, sections, imports, strings, IOCs, and entropy, persist `.re-mode/` artifacts, and analyze protected or obfuscated samples with evidence graphs and optional Ghidra MCP context.
+- **High token ROI**: Kun keeps prompt prefixes stable, tracks DeepSeek-native cache hit/miss fields, compacts context and tool output, and uses MCP search to discover tools progressively so tokens stay focused on requirements, code, decisions, and results.
+- **Friendly first launch**: choose language, add your DeepSeek API key, and optionally set a compatible Base URL.
+- **Local-first**: preferences, sessions, logs, and runtime config stay on your machine; model calls use your own DeepSeek API key.
+- **English and Chinese UI**: switch languages from Settings at any time.
+- **Cross-platform use**: macOS `.dmg/.zip`, Windows `.exe`, and Linux `.AppImage`; source builds remain available.
 
-## 运行时：Kun
+## Runtime: Kun
 
-DeepSeek-GUI 当前唯一活跃的本地 Agent 运行时是仓库自带的
-**Kun**（位于 `kun/` 目录）。Kun 取意于《庄子·逍遥游》中的
-“北冥有鱼，其名为鲲”：它不是一个临时聊天壳，而是希望把模型能力沉到
-更深的本地运行时里，让它能承载更长的上下文、更复杂的工具调用和更持续的
-项目协作。技术上，Kun 是一个独立的 TypeScript 包，启动本地 HTTP/SSE
-服务作为 GUI 与 agent loop 之间的唯一边界。
+The only active local agent runtime in DeepSeek-GUI today is
+**Kun** (shipped under `kun/`), a self-contained
+TypeScript package that boots a local HTTP/SSE server as the
+single boundary between the GUI and the agent loop.
 
-Kun 的核心理念是提高每一个 token 的 ROI。对用户来说，同样的上下文预算
-应该尽量花在需求、代码、决策和结果上，而不是重复的工具 schema、失控的
-工具输出、无效历史或已经可以被缓存复用的前缀上。它适合的不是一次性问答，
-而是反复读写项目、持续调用工具、需要长期上下文的真实工作流。
+The name Kun is inspired by the great fish in Zhuangzi's line,
+"In the northern sea there is a fish; its name is Kun." The idea is
+not a temporary chat shell, but a deeper local runtime that can carry
+longer context, richer tools, and sustained project collaboration.
 
-Kun 集成了已被验证的设计：
+Kun's operating principle is to raise the ROI of every token. The
+user's context budget should go toward requirements, code, decisions,
+and results, not repeated tool schemas, runaway tool output, invalid
+history, or prefixes that could have been reused from cache. It is
+optimized less for one-off questions and more for real workflows that
+read and write projects, call tools repeatedly, and carry context over
+long sessions.
 
-- **借鉴自 Reasonix 的 cache-first agent loop**：immutable prompt prefix（带 sha256 指纹）、append-only session log、bounded TTL/LRU cache、inflight tracking with guaranteed cleanup、mid-turn steering queue、context compaction（保留 pinned constraints）、cache / usage telemetry。
-- **Token economy 与工具上下文优化**：稳定系统前缀与工具 schema，按 DeepSeek 原生字段统计 cache hit/miss；对超长工具结果、长参数、base64 payload 和重复工具循环做边界压缩或抑制；当 MCP 工具很多时，可用 `mcp_search` / `mcp_describe` / `mcp_call` 渐进发现和调用工具，避免一次性把庞大的 MCP 工具目录全部塞进 prompt。
+Kun fuses a design that has been battle-tested in the
+wild:
 
-> 致谢：感谢 Reasonix 团队提供的可运行参考。Kun
-> 的几乎全部性能特征——cache hit 率、token replay、断线重连、
-> 审批中断——都可以追溯到该项目。具体设计取舍与借鉴映射
-> 详见 [`docs/kun-architecture.md`](docs/kun-architecture.md)。
+- **The cache-first agent loop borrowed from Reasonix**: immutable prompt prefix (with sha256 fingerprint), append-only session log, bounded TTL/LRU cache, inflight tracking with guaranteed cleanup, mid-turn steering queue, context compaction that preserves pinned constraints, and cache/usage telemetry.
+- **Token economy and tool-context optimization**: Kun stabilizes system prompts and tool schemas, reads DeepSeek-native cache hit/miss fields, bounds long tool results, long arguments, base64 payloads, and repeated tool loops, and can use `mcp_search` / `mcp_describe` / `mcp_call` to discover MCP tools progressively when a tool catalog is too large to advertise all at once.
 
-如果你想专门了解 Kun 如何做缓存优化，包括稳定前缀、工具 schema
-规范化、DeepSeek 原生 hit/miss 统计、tool pair healing 和验证方法，
-可以直接阅读
-[`docs/kun-cache-optimization.md`](docs/kun-cache-optimization.md)。
+> Thanks to the Reasonix team for sharing the runnable references
+> that made this design pillar testable in the first place. Nearly
+> every performance trait of Kun — cache hit rate, token replay,
+> reconnect, and interruptable approvals — can be traced back to
+> this project. The full design rationale
+> and the borrow map live in
+> [`docs/kun-architecture.md`](docs/kun-architecture.md).
 
-Kun 的大块 agent 能力采用 feature flag 管理：`capabilities.mcp`
-接入第三方 MCP server，`capabilities.web` 暴露 `web_fetch` /
-`web_search`，`capabilities.skills` 发现 `skill.json` 与 legacy
-`SKILL.md`，`capabilities.attachments` 支持图片附件和文本模型 fallback，`capabilities.memory`
-启用跨会话记忆，`capabilities.subagents` 允许有预算上限的子 agent
-委派。`kun run` / `kun chat` / `kun exec` 可脱离 GUI 运行；GUI 的设置页
-会读取 `/v1/runtime/info` 与 `/v1/runtime/tools` 展示实际可用状态。
-这些能力默认按配置关闭或受模型能力限制，完整配置示例和排障说明见
-[`kun/README.md`](kun/README.md)。
+If you want the dedicated write-up for cache behavior, including
+stable prefixes, tool schema canonicalization, DeepSeek native
+hit/miss accounting, tool-pair healing, and validation strategy, see
+[`docs/kun-cache-optimization.md`](docs/kun-cache-optimization.md).
 
-技术架构（简化版）：
+Kun's larger agent capabilities are controlled by feature flags:
+`capabilities.mcp` connects third-party MCP servers,
+`capabilities.web` exposes `web_fetch` / `web_search`,
+`capabilities.skills` discovers `skill.json` and legacy `SKILL.md`,
+`capabilities.attachments` enables image attachments with text-model fallback, `capabilities.memory`
+enables cross-session recall, and `capabilities.subagents` allows
+budgeted delegated child runs. `kun run`, `kun chat`, and `kun exec`
+can run without the GUI. The GUI reads `/v1/runtime/info` and
+`/v1/runtime/tools` in Settings to show what is actually available.
+These capabilities are off by config or limited by model capability
+until explicitly enabled; examples and troubleshooting live in
+[`kun/README.md`](kun/README.md).
+
+Simplified architecture:
 
 ```text
 Renderer (React)
@@ -151,100 +224,104 @@ Renderer (React)
   → cache-first AgentLoop
 ```
 
-设置项在 **设置 → Agent 运行时** 里维护：binary path、port、
-auto-start、API key、base URL、runtime token、data dir、model、
-approval policy、sandbox mode、insecure 开关。如果之前保存过旧
-provider，settings 会在读取时迁移到 `agents.kun`，再次保存后
-只保留 Kun 配置。
+Settings live under **Settings → Agent runtime**: binary path, port,
+auto-start, API key, base URL, runtime token, data dir, model,
+approval policy, sandbox mode, and the insecure switch. If an older
+provider was saved before, settings are migrated into
+`agents.kun` on load; after saving, only Kun settings
+remain.
 
-完整的端点、CLI flag、环境变量、data dir 布局、SSE 事件 schema
-见 [`kun/README.md`](kun/README.md)。
+The full endpoint list, CLI flags, environment variables, data dir
+layout, and SSE event schema are documented in
+[`kun/README.md`](kun/README.md).
 
-## 适合谁
+## Who It Is For
 
-- 想用 DeepSeek 处理真实代码库，但不想一直留在终端里的开发者。
-- 希望清楚看到智能体做了什么、改了哪些文件、哪些操作需要批准的团队。
-- 需要长期维护多个项目、多个会话，并希望把 Skill/MCP 配置沉淀下来的用户。
-- 想用本地工作台连接 DeepSeek 官方 API 或 OpenAI 兼容服务的人。
-
----
-
-## 工作台与入口
-
-DeepSeek GUI 现在以 **Code**、**写作** 和 **Reverse Engineering** 工作台为核心，并提供
-**连接手机**、**定时任务**、**插件 / Skill / MCP** 等入口。它们共享同一套
-Kun 运行时与设置，但会话、工作区和界面布局彼此独立，可按任务随时切换。
-
-### Code 模式
-
-面向真实代码库的开发工作台：绑定本地项目目录，围绕仓库读写文件、执行命令、审查改动。
-
-<p align="center">
-  <img src="src/asset/img/codemode.png" alt="DeepSeek GUI Code 模式" width="860">
-</p>
-
-- 按工作区管理多个 Agent 会话，实时查看推理、工具调用与文件变更。
-- 支持内联 diff、变更审查面板，以及只读 / 工作区可写 / 完全访问等权限策略。
-- 支持新建需求、`/plan` 计划、右侧计划面板、线程 Todo 和 `/goal` 长期目标，让复杂任务可以先澄清、再计划、再执行。
-- 支持 `/review` 代码审查、`/btw` 旁支对话、会话压缩、会话分叉和归档恢复，适合长时间维护同一个项目上下文。
-- 提供快捷任务卡片，可一键发起结构梳理、排错、实现方案或 UI 优化等对话。
-
-### Reverse Engineering 逆向工程模式
-
-面向二进制分析的专用工作台，用于快速 triage、静态分析和受保护软件分析，同时避免把大量原始反汇编塞进聊天上下文。
-
-- 对 PE / ELF / Mach-O / APK 等文件执行二进制 intake：哈希、格式、架构、节区、导入导出、字符串、熵、IOC、加壳线索和能力线索。
-- 在 `.re-mode/` 中持久化分析状态，包括 `analysis.json`、`iocs.json`、`symbols.json`、`notes.md`、`report.md`、原始输出、函数摘要和 diff。
-- 通过 `.re-mode/behavior-graph.json` 关联保护/混淆证据：高熵 blob、解码器、动态 API 解析、VM dispatcher / handler 候选、解码产物、消费者函数与能力分类。
-- 如果连接了 Ghidra MCP，可把它作为高保真后端读取函数、反编译、反汇编、xref、调用图、符号、重命名和注释；如果不可用，则回退到本地 RE helpers、通用 MCP、已保存产物或用户提供的片段。
-
-详细文档：[`docs/RE_MODE.md`](docs/RE_MODE.md)。
-
-### Write 模式
-
-独立的 Markdown 写作工作台，把写作文件、保存状态与 AI 助手从 Code 会话里拆出来单独管理。
-
-<p align="center">
-  <img src="src/asset/img/writemode.png" alt="DeepSeek GUI Write 模式" width="860">
-</p>
-
-- 管理 `~/.deepseekgui/write_workspace` 与多个自定义写作空间，左侧文件树支持新建、重命名与删除。
-- 编辑器支持 **Live / Source / Split / Preview**，Live 模式在当前行保留 Markdown 源码，其余行实时渲染。
-- 工具栏支持把当前 Markdown 文档导出为 `HTML / PDF / DOC / DOCX`，导出时会尽量保留标题、列表、代码块、表格和本地图片。
-- 内置 DeepSeek FIM 短补全与灵感长补全；选中文本可唤起 inline agent，右侧写作助手支持摘要、大纲与润色等快捷操作。
-
-### 连接手机
-
-把 Kun 连接到手机和 IM 的后台自动化入口，让 Agent 在普通桌面聊天之外持续处理消息与定时任务。
-
-<p align="center">
-  <img src="src/asset/img/clawmode.png" alt="DeepSeek GUI 连接手机" width="860">
-</p>
-
-- 为飞书 / Lark / 微信等渠道配置独立 Agent，分别设定人设、默认模型与工作目录。
-- 每个 IM Agent 拥有独立会话线程，可在 GUI 内直接调试回复与工具调用。
-- 支持本地 webhook / relay，适合把 DeepSeek 接到团队协作或个人自动化流程中。
-- 定时任务可设置一次性、每日、间隔或手动运行，任务会创建独立 Kun thread，并按配置发送 prompt。
+- Developers who want DeepSeek to work on real codebases without living in a terminal.
+- Teams that need to see what the agent did, which files changed, and which operations required approval.
+- Users who maintain multiple projects or long-running conversations and want reusable Skill/MCP setup.
+- Anyone who wants a local desktop workbench connected to the official DeepSeek API or a compatible endpoint.
 
 ---
 
-## 下载安装
+## Workbench And Entry Points
 
-### 下载预构建安装包
+DeepSeek GUI is centered on **Code**, **Write**, and **Reverse Engineering** workbenches,
+with additional entry points for **Connect phone**, **Scheduled tasks**,
+and **Plugins / Skills / MCP**. They share the same Kun runtime and
+settings, but keep sessions, workspaces, and layouts separate so you
+can switch by task.
 
-前往 [GitHub Releases](https://github.com/XingYu-Zhong/DeepSeek-GUI/releases) 下载最新版本：
+### Code Mode
 
-| 平台 | 安装包 |
+The development workbench for real codebases: bind a local project directory, read and edit files, run commands, and review changes.
+
+<p align="center">
+  <img src="src/asset/img/codemode.png" alt="DeepSeek GUI Code mode" width="860">
+</p>
+
+- Organize multiple agent sessions by workspace, with streamed reasoning, tool calls, and file changes in one view.
+- Inline diffs, a change-review panel, and permission modes from read-only to full access.
+- New requirement drafts, `/plan`, the right-side Plan panel, thread todos, and `/goal` help complex work move from clarification to planning to execution.
+- `/review`, `/btw`, thread compaction, thread forking, archive, and restore support longer-lived project conversations.
+- Quick-start cards for common tasks such as project mapping, bug fixing, implementation planning, and UI polish.
+
+### Reverse Engineering Mode
+
+A dedicated binary-analysis workbench for triage, static analysis, and protected-software investigation without flooding the chat context with raw disassembly.
+
+- Run binary intake for PE / ELF / Mach-O / APK and related files: hashes, format, architecture, sections, imports, exports, strings, entropy, IOCs, packer hints, and capability clues.
+- Persist analysis state in `.re-mode/`, including `analysis.json`, `iocs.json`, `symbols.json`, `notes.md`, `report.md`, raw outputs, function summaries, and diffs.
+- Correlate protected and obfuscated binary evidence through `.re-mode/behavior-graph.json`: high-entropy blobs, decoders, dynamic API resolution, VM dispatcher/handler candidates, decoded artifacts, consumers, and capabilities.
+- Use Ghidra MCP as a high-fidelity backend when connected for functions, decompiler output, disassembly, xrefs, call graphs, symbols, renames, and comments; fall back cleanly to local helpers, generic MCP tools, saved artifacts, or user snippets when it is unavailable.
+
+Detailed docs: [`docs/re-mode.md`](docs/re-mode.md).
+
+### Write Mode
+
+A dedicated Markdown writing workbench that keeps writing files, save state, and AI assistance separate from Code sessions.
+
+<p align="center">
+  <img src="src/asset/img/writemode.png" alt="DeepSeek GUI Write mode" width="860">
+</p>
+
+- Manage `~/.deepseekgui/write_workspace` plus custom writing spaces from the left file tree.
+- Switch between **Live / Source / Split / Preview**; Live keeps Markdown source on the active line and renders the rest.
+- Export the current Markdown document from the toolbar as `HTML / PDF / DOC / DOCX`, with best-effort preservation for headings, lists, code blocks, tables, and local images.
+- DeepSeek FIM short and inspiration completion, plus selection-based inline agent actions and a right-side writing assistant for summaries, outlines, and polish.
+
+### Connect Phone
+
+Background automation and IM integration, so Kun can keep handling phone messages and scheduled jobs outside normal desktop chat.
+
+<p align="center">
+  <img src="src/asset/img/clawmode.png" alt="DeepSeek GUI Connect phone" width="860">
+</p>
+
+- Configure dedicated agents for Feishu / Lark / WeChat and other channels, each with its own profile, default model, and workspace.
+- Every IM agent gets its own thread, so you can debug replies and tool calls directly in the GUI.
+- Local webhook / relay support for team workflows and personal automation.
+- Scheduled tasks can run once, daily, on an interval, or manually. Each task creates a dedicated Kun thread and sends its configured prompt.
+
+---
+
+## Install
+
+### Download a Pre-built Package
+
+Download the latest build from [GitHub Releases](https://github.com/XingYu-Zhong/DeepSeek-GUI/releases):
+
+| Platform | Package |
 | --- | --- |
-| macOS | `.dmg` 或 `.zip`，支持 Intel 与 Apple Silicon |
-| Windows | `.exe`，NSIS 安装器，x64 |
-| Linux | `.AppImage`，x64 |
+| macOS | `.dmg` or `.zip`, Intel and Apple Silicon |
+| Windows | `.exe`, NSIS installer, x64 |
+| Linux | `.AppImage`, x64 |
 
-首次启动时需要填写 [DeepSeek API Key](https://platform.deepseek.com/api_keys)。如果你使用兼容 DeepSeek / OpenAI 的服务，也可以在设置里修改 Base URL。
+On first launch, enter your [DeepSeek API key](https://platform.deepseek.com/api_keys). If you use a DeepSeek/OpenAI-compatible endpoint, you can set a custom Base URL in Settings.
 
-### 从源码运行
+### Run from Source
 
-适合贡献者或需要本地开发的人：
+For contributors and local development:
 
 ```bash
 git clone https://github.com/XingYu-Zhong/DeepSeek-GUI.git
@@ -253,13 +330,13 @@ npm install
 npm run dev
 ```
 
-环境要求：
+Requirements:
 
 - Node.js 20+
-- 可用的 DeepSeek API Key
-- 首次安装依赖时需要联网
+- A DeepSeek API key
+- Internet access during the first dependency install
 
-中国大陆访问较慢时，可以使用 npm 镜像：
+For slower network access in mainland China, use an npm mirror:
 
 ```bash
 npm install --registry=https://registry.npmmirror.com
@@ -267,74 +344,74 @@ npm install --registry=https://registry.npmmirror.com
 
 ---
 
-## 首次使用
+## First Run
 
-1. 打开 DeepSeek GUI。
-2. 在首次引导中选择界面语言。
-3. 填入 DeepSeek API Key；如果需要，设置自定义 Base URL。
-4. 选择默认工作目录，或使用应用自动创建的默认目录。
-5. 新建会话，输入任务，让智能体开始工作。
+1. Open DeepSeek GUI.
+2. Choose your interface language in the onboarding guide.
+3. Enter your DeepSeek API key; set a custom Base URL if needed.
+4. Choose a default workspace, or use the default directory created by the app.
+5. Start a new session and describe the task you want the agent to handle.
 
-常用流程（**Code 模式**）：
+Typical flow (**Code mode**):
 
-- 在左侧选择或切换工作区。
-- 在聊天框描述你要完成的任务。
-- 观察回复中的推理、工具调用、命令执行和文件改动。
-- 对需要审批的操作选择允许或拒绝。
-- 在变更审查面板里检查改动，再决定下一步。
+- Pick or switch a workspace from the sidebar.
+- Describe the task in the composer.
+- Watch reasoning, tool calls, command execution, and file changes as they happen.
+- Allow or deny actions that require approval.
+- Inspect changes in the review panel before deciding what to do next.
 
-**连接手机** 与 **写作** 的详细说明见上文 [工作台与入口](#工作台与入口)。简要步骤：
+See [Workbench And Entry Points](#workbench-and-entry-points) above for Connect phone and Write details. Quick start:
 
-- **连接手机**：在设置页启用后台自动化 → 添加飞书 / Lark / 微信连接 → 配置 Agent 人设、模型与工作目录 → 按需开启 webhook / relay 或定时任务。
-- **Write**：切换到 Write 模式 → 使用默认写作空间或添加新空间 → 在 Live 编辑器中写作，配合补全、选区 inline agent 与右侧写作助手。
+- **Connect phone**: enable background automation in Settings → add a Feishu / Lark / WeChat connection → configure agent profile, model, and workspace → optionally enable webhook / relay or scheduled tasks.
+- **Write**: switch to Write mode → use the default writing space or add a new one → write in the Live editor with completion, selection inline agent, and the right-side writing assistant.
 
-## 设置与使用
+## Usage and Settings
 
-设置页集中管理这些内容：
+Settings manages:
 
-- DeepSeek API Key、Base URL、运行时端口和运行时 Token。
-- 是否自动启动本地运行时，以及是否使用自定义 `deepseek` 路径。
-- 工具审批策略和文件系统权限范围。
-- 默认工作目录、语言、主题、字体大小和完成通知。
-- GUI 更新和本地错误日志。
-- Skill 创建与目录管理、MCP 配置编辑。
-- 连接手机后台自动化、飞书 / Lark / 微信连接、Webhook / Relay 和定时任务。
+- DeepSeek API key, Base URL, runtime port, and runtime token.
+- Auto-start for the local runtime, plus optional custom `deepseek` path.
+- Tool approval policy and filesystem access mode.
+- Default workspace, language, theme, font size, and completion notifications.
+- GUI updates and local error logs.
+- Skill creation, Skill folders, and MCP config editing.
+- Connect phone automation, Feishu / Lark / WeChat connections, webhook / relay settings, and scheduled tasks.
 
-快捷键：
+Keyboard shortcuts:
 
-| 按键 | 功能 |
+| Key | Action |
 | --- | --- |
-| `Enter` | 发送消息 |
-| `Shift+Enter` | 在输入框中换行 |
-| `Ctrl+Enter` | 发送消息 |
-| `Esc` | 关闭面板或退出当前浮层 |
+| `Enter` | Send message |
+| `Shift+Enter` | Newline in composer |
+| `Ctrl+Enter` | Send message |
+| `Esc` | Close a panel or dismiss the current overlay |
 
-## Write 模式设计参考
+## Write Mode Design Notes
 
-Write 模式的目标是把 DeepSeek GUI 从“代码/聊天工作台”扩展成真正可长期写作的桌面工作区。实现时参考了本地 `openhanako` 项目中的几个方案：
+Write mode extends DeepSeek GUI from a code/chat workbench into a long-form writing workspace. Its implementation borrows several ideas from the local `openhanako` reference project:
 
-- Markdown live 编辑：借鉴 openhanako 的 CodeMirror decorations 思路，当前行保留 Markdown 源码，非当前行用装饰层渲染标题、任务项、图片、分割线和表格。
-- 选区 inline agent：借鉴 openhanako 的选区捕获与浮动输入框交互，用户选中文本后可以直接输入“润色/续写/分析”等指令，并把文件路径、行号和原文作为结构化引用交给写作助手。
-- AI 会话隔离：Write 使用 Kun thread，但在 GUI 本地按写作空间维护 write thread registry，避免写作会话污染 Code / 连接手机侧栏。
-- 文本补全：写作补全不走本地 Kun serve（**Kun** 是仓库自带的本地 HTTP/SSE Agent 运行时，唯一负责 GUI 与 agent loop 之间的通信，详见上一节「运行时：Kun」），而是直接调用 DeepSeek FIM Completion API，方便在纯写作场景里获得低延迟 ghost text。短补全使用较短 debounce、较小 token 预算和严格本地过滤；灵感长补全使用更长停顿触发、更大 token 预算，并只在行尾 / 段落边界工作。补全前会对写作空间内的 Markdown / 文本文件建立短 TTL 轻量索引，使用 BM25 + 关键词匹配召回跨文本片段，并以隐藏 Markdown comment 的形式注入 prompt，帮助模型保持术语、事实和风格连续性。
+- Markdown live editing: openhanako inspired the CodeMirror decorations approach where the active line stays editable as Markdown source while inactive lines render headings, tasks, images, dividers, and tables through widgets.
+- Selection inline agent: openhanako inspired the selection-capture and floating-input interaction, so selected text can be sent with file path, line numbers, and bounded original text as structured context.
+- AI session isolation: Write uses Kun threads, but the GUI keeps a local write thread registry per writing space so write conversations do not pollute Code / Connect phone sidebars.
+- Text completion: writing completion bypasses the local Kun serve runtime (**Kun** is the bundled local HTTP/SSE agent runtime, the single boundary between the GUI and the agent loop — see the [Runtime: Kun](#runtime-kun) section above for details) and calls the DeepSeek FIM Completion API directly for low-latency ghost text. Short completion uses a short debounce, small token budget, and strict local filtering; inspiration completion uses a longer pause, larger token budget, and only runs at line ends or paragraph boundaries. Before completion, the app builds a short-TTL lightweight index over Markdown / text files in the writing space, retrieves cross-document snippets with BM25 + keyword matching, and injects them as a hidden Markdown comment so terminology, facts, and style stay consistent.
 
 ---
 
-## 卸载
+## Uninstall
 
 ### Windows
 
-- 打开“设置 -> 应用 -> 已安装的应用”，找到 `DeepSeek GUI` 并卸载。
-- 或在“控制面板 -> 程序和功能”中卸载。
-- 也可以运行安装目录中的卸载程序。
+- Open Settings -> Apps -> Installed apps, find `DeepSeek GUI`, and uninstall it.
+- Or uninstall from Control Panel -> Programs and Features.
+- Or run the uninstaller from the installation directory.
 
-Windows 安装器默认会创建开始菜单和桌面快捷方式。安装包不会强制固定到任务栏；如需固定，可在开始菜单中右键 `DeepSeek GUI` 并选择固定。
+The Windows installer creates Start Menu and desktop shortcuts by default. It does not force a taskbar pin; pin it manually from the Start Menu if you want one.
 
 ### macOS
 
-- 将 `DeepSeek GUI.app` 从“应用程序”移到废纸篓。
-- 如果首次打开被系统拦截，可在 Finder 中右键应用并选择“打开”。
-- 本地未公证构建可先运行：
+- Move `DeepSeek GUI.app` from Applications to Trash.
+- If macOS blocks the app on first open, right-click it in Finder and choose Open.
+- For local unsigned builds, you can remove the quarantine attribute first:
 
 ```bash
 npm run mac:unquarantine -- '/Applications/DeepSeek GUI.app'
@@ -342,97 +419,97 @@ npm run mac:unquarantine -- '/Applications/DeepSeek GUI.app'
 
 ### Linux
 
-- 如果你是从源码构建的 Linux 包，删除对应的 `.AppImage` 或安装文件即可。
-- 如果你手动创建了桌面入口或快捷方式，也一并删除。
+- If you built a Linux package from source, delete the related `.AppImage` or installed files.
+- If you manually created a desktop entry or shortcut, delete that too.
 
-### 清理本地数据
+### Remove Local Data
 
-默认卸载只移除应用文件，会保留本地设置、会话和运行时配置，便于后续重装恢复。若要彻底清理，可按需删除：
+By default, uninstalling removes the app but keeps local settings, sessions, and runtime config so reinstalling is smoother. For a full cleanup, remove these paths if needed:
 
-| 平台 | 应用数据位置 |
+| Platform | App data path |
 | --- | --- |
 | macOS | `~/Library/Application Support/DeepSeek GUI` |
 | Windows | `%APPDATA%\DeepSeek GUI` |
 | Linux | `~/.config/DeepSeek GUI` |
 
-Kun 数据默认位于 `~/.deepseekgui/kun` 或应用数据目录下的 Kun data dir。删除前请确认其中没有你还需要的会话、MCP 或 Skill 配置。
+Kun data lives under `~/.deepseekgui/kun` or the configured Kun data dir. Check it before deleting, because it may contain sessions, MCP, or Skill settings you still need.
 
 ---
 
-## 更新
+## Updates
 
-- 普通用户：可在设置页检查 GUI 更新，或前往 [GitHub Releases](https://github.com/XingYu-Zhong/DeepSeek-GUI/releases) 下载最新安装包。
+- For regular users: check GUI updates in Settings or download the latest installer from [GitHub Releases](https://github.com/XingYu-Zhong/DeepSeek-GUI/releases).
 
-## 贡献指南
+## Contributing
 
-欢迎提交 bug 修复、UI/UX 优化、文档改进、本地化内容、构建发布流程和运行时集成相关改动。
+Contributions are welcome for bug fixes, UI/UX improvements, documentation, localization, build/release workflows, and runtime integration.
 
-协作约定：
+Project conventions:
 
-- 日常协作与集成分支为 `develop`，稳定发布分支为 `master`。
-- 新功能和修复建议从最新 `develop` 拉出短期功能分支开始。
-- PR 默认提交到 `develop`，由维护者审核后再由维护者合入 `master` 发布。
-- 对高风险改动请先沟通范围，再进入实现。
-- 发起 PR 前运行 `npm run typecheck`、`npm run build`，以及 `npm run test`。
-- 如果改动影响界面，请附上视频或 GIF。
-- 如果改动影响项目逻辑，请附上对应单元测试。
-- 如果改动影响使用方式，请同步更新 `README.md` 和 `README.en.md`。
+- Day-to-day collaboration and integration happens on `develop`; stable releases land on `master`.
+- Start features and fixes from the latest `develop`, preferably on a short-lived feature branch.
+- Open pull requests into `develop` by default; maintainers merge reviewed changes into `master` for release.
+- Align on scope first for larger or riskier changes.
+- Run `npm run typecheck`, `npm run build`, and `npm run test` before opening a PR.
+- Include a video or GIF when the UI changes.
+- Include unit tests when project logic changes.
+- Update both `README.md` and `README.zh-CN.md` when usage changes.
 
-详见 [CONTRIBUTING.zh-CN.md](./docs/CONTRIBUTING.zh-CN.md) 和 [DEVELOPMENT.zh-CN.md](./docs/DEVELOPMENT.zh-CN.md)。
+See [CONTRIBUTING.md](./docs/CONTRIBUTING.md) and [DEVELOPMENT.md](./docs/DEVELOPMENT.md) for details.
 
-## 本地构建
+## Local Build
 
 ```bash
-npm run build           # 生产构建
-npm run dist:mac        # macOS 安装包
-npm run dist:win        # Windows 安装包（在 Windows 上运行）
+npm run build           # production build
+npm run dist:mac        # macOS packages
+npm run dist:win        # Windows installer (run on Windows)
 npm run dist:linux      # Linux AppImage
-npm run release:mac     # 手动兜底：构建并上传 macOS release 资源
-npm run release:win     # 手动兜底：构建并上传 Windows release 资源
+npm run release:mac     # manual fallback for macOS release assets
+npm run release:win     # manual fallback for Windows release assets
 ```
 
-更多开发流程请看 [DEVELOPMENT.zh-CN.md](./docs/DEVELOPMENT.zh-CN.md)。
+For the full development workflow, see [DEVELOPMENT.md](./docs/DEVELOPMENT.md).
 
-## 文档
+## Documentation
 
-| 文档 | 内容 |
+| Doc | Contents |
 | --- | --- |
-| [docs/kun-architecture.md](docs/kun-architecture.md) | Kun 单运行时方案、GUI 拆改范围、HTTP/SSE 合约、旧 agent 拆除说明 |
-| [docs/kun-cache-optimization.md](docs/kun-cache-optimization.md) | Kun 缓存优化、token economy、MCP search、工具输出压缩与用量收益统计 |
-| [docs/kun-contributing.md](docs/kun-contributing.md) | Kun 贡献指南：六边形架构、设计模式（Ports & Adapters / Functional Core Imperative Shell / 事件溯源 / 显式 DI / Composition Root）、4 个典型 PR 场景 |
-| [docs/RE_MODE.md](docs/RE_MODE.md) | Reverse Engineering 模式：二进制 triage、`.re-mode/` 产物、受保护二进制分析、证据图和 Ghidra MCP-aware 工作流 |
-| [kun/README.md](kun/README.md) | Kun 包：CLI、env、data dir、HTTP API |
-| [CONTRIBUTING.zh-CN.md](docs/CONTRIBUTING.zh-CN.md) | 贡献说明 |
-| [DEVELOPMENT.zh-CN.md](docs/DEVELOPMENT.zh-CN.md) | 本地开发与协作流程 |
-| [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | 社区行为准则 |
-| [SECURITY.md](SECURITY.md) | 安全漏洞披露方式 |
+| [docs/kun-architecture.en.md](docs/kun-architecture.en.md) | Single-Kun runtime plan, GUI removal scope, HTTP/SSE contract, and legacy agent retirement notes |
+| [docs/kun-cache-optimization.en.md](docs/kun-cache-optimization.en.md) | Kun cache optimization, token economy, MCP search, tool-output compaction, and usage savings |
+| [docs/kun-contributing.en.md](docs/kun-contributing.en.md) | Kun contribution guide: hexagonal architecture, design patterns (Ports & Adapters / Functional Core Imperative Shell / event sourcing / explicit DI / composition root), four typical PR scenarios |
+| [docs/re-mode.md](docs/re-mode.md) | Reverse Engineering Mode: binary triage, `.re-mode/` artifacts, protected-binary analysis, behavior graph, and Ghidra MCP-aware workflows |
+| [kun/README.md](kun/README.md) | Kun package: CLI, env, data dir, HTTP API |
+| [CONTRIBUTING.en.md](docs/CONTRIBUTING.en.md) | Contribution guide |
+| [DEVELOPMENT.en.md](docs/DEVELOPMENT.en.md) | Local development workflow |
+| [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | Community code of conduct |
+| [SECURITY.md](SECURITY.md) | Security disclosure policy |
 
 ---
 
-## 致谢
+## Thanks
 
-Kun 的设计站在先行项目的肩膀上：
+Kun stands on the shoulders of prior projects:
 
-- **Reasonix** —— cache-first agent loop。`ImmutablePrefix`（带 sha256 指纹）+ 显式 mutation API、`AppendOnlySessionLog`（in-memory 窗口 + JSONL 磁盘重放）、`LruCache` / `TtlLruCache`、带 `finally` 清理的 `InflightTracker`、`SteeringQueue`（mid-turn 用户引导）、`ContextCompactor`（保留 pinned constraints）、`UsageCounter` + `CacheTelemetry` —— 这些都是 Reasonix 设计原型的 TypeScript 复刻与改进。Reasonix 的 reasoning events 拆分流、tool call / result 配对、usage replay 等设计也直接延续到 Kun 的事件合约。
+- **Reasonix** — the cache-first agent loop. `ImmutablePrefix` (with sha256 fingerprint) and its explicit mutation API, `AppendOnlySessionLog` (in-memory window + JSONL on disk), `LruCache` / `TtlLruCache`, `InflightTracker` with `finally`-block cleanup, `SteeringQueue` for mid-turn user guidance, `ContextCompactor` that preserves pinned constraints, and `UsageCounter` + `CacheTelemetry` are direct TypeScript ports and refinements of Reasonix's design prototypes. Reasonix's split between reasoning events and assistant text, the `tool_call` / `tool_result` pairing via `callId`, and the usage replay pattern also flow directly into the Kun event contract.
 
-也感谢以下项目和个人：
+We are also grateful to:
 
-- **[LobsterAI](https://github.com/netease-youdao/LobsterAI)**：IM 管理、扫码绑定、Agent 绑定与自定义人设流程给了本项目连接手机能力很多启发。
-- **OpenHanako**：Markdown live 编辑、写作空间、选中文本 inline agent 等 Write 模式交互和实现方案给了本项目重要参考。
-- **[DeepSeek](https://github.com/deepseek-ai)**：提供模型与 API。
-- 所有为 DeepSeek GUI 提交 issue、建议、代码和文档的贡献者。
+- **[LobsterAI](https://github.com/netease-youdao/LobsterAI)**: its IM management, QR binding, agent binding, and customizable agent-profile flows inspired the Connect phone integration in this project.
+- **OpenHanako**: its Markdown live editing, writing-space, and selection inline-agent patterns heavily informed Write mode.
+- **[DeepSeek](https://github.com/deepseek-ai)**: for the models and API.
+- Everyone who contributes issues, ideas, code, and documentation to DeepSeek GUI.
 
 <a href="https://github.com/XingYu-Zhong/DeepSeek-GUI/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=XingYu-Zhong/DeepSeek-GUI" />
 </a>
 
 > [!NOTE]
-> 本项目与 DeepSeek Inc. 无隶属关系。
+> This project is not affiliated with DeepSeek Inc.
 
-## 许可证
+## License
 
 [MIT](./LICENSE)
 
-## Star 历史
+## Star History
 
 [![Star History Chart](https://api.star-history.com/chart?repos=XingYu-Zhong/DeepSeek-GUI&type=date&legend=top-left)](https://www.star-history.com/?repos=XingYu-Zhong%2FDeepSeek-GUI&type=date&logscale=&legend=top-left)

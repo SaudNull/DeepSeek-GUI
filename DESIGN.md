@@ -1365,7 +1365,7 @@ If any check fails, the change is not ready.
   HTTP API.
 - `docs/AGENTS.md` — agent runtime notes (constraints enforced
   on contributors).
-- `README.md` / `README.en.md` — product-level overview.
+- `README.md` / `README.zh-CN.md` — product-level overview.
 
 This file is the design source of truth. When the code and this
 file disagree, **this file is wrong** until you change both.

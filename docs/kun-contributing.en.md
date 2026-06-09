@@ -456,7 +456,7 @@ If a change is not covered in a certain layer, first ask "which layer should be 
 
 - Any new/modified contract must update the `kun/README.md` side at the same time
   point table;
-- For any changes/references/acknowledgments, update `README.md` and `README.en.md`
+- For any changes/references/acknowledgments, update `README.md` and `README.zh-CN.md`
   Thanks chapter;
 - Inconsistent doc/code is worse than missing - the PR should change both.
 
@@ -583,7 +583,7 @@ Before submitting a PR, confirm each item:
 - [ ] Complex design decisions (why ports work like this, why use a certain event stream)
       Write it in the PR description
 - [ ] When the public contract is changed, update the `kun/README.md` endpoint table
-- [ ] When references/acknowledgments change, update root directories `README.md` and `README.en.md`
+- [ ] When references/acknowledgments change, update root directories `README.md` and `README.zh-CN.md`
 - [ ] When adding a new SSE event, add a line to `docs/kun-architecture.md`- [ ] in the borrow map of `docs/kun-architecture.md` (as in the future
       Add OpenAI-style reference) to explain the design source
 

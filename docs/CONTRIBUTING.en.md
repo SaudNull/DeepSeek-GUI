@@ -99,7 +99,7 @@ npm run dev
 
 When your change affects project usage or collaboration, update the relevant docs:
 
-- `README.md` and `README.en.md` for project-level usage
+- `README.md` and `README.zh-CN.md` for project-level usage
 - `docs/DEVELOPMENT.md` and `docs/DEVELOPMENT.zh-CN.md` for workflow/process updates
 - this contributing guide when standards change
 

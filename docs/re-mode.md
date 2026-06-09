@@ -1,5 +1,7 @@
 # Reverse Engineering Mode
 
+English | [中文](./re-mode.zh-CN.md)
+
 Reverse Engineering Mode, or RE Mode, turns Kun into a binary-analysis workbench. It is a dedicated mode with its own prompt, tool surface, workspace artifacts, protected-binary heuristics, and optional Ghidra MCP integration.
 
 RE Mode is designed for fast triage first, then focused function-level work. It keeps raw tool output on disk and passes compact summaries to the model.

@@ -446,7 +446,7 @@ cache 路由"。
 **贡献规则**:
 - 任何新增/修改的 contract,必须同时更新 `kun/README.md` 端
   点表;
-- 任何借鉴/参考/致谢变化,更新 `README.md` 和 `README.en.md` 的
+- 任何借鉴/参考/致谢变化,更新 `README.md` 和 `README.zh-CN.md` 的
   Thanks 章节;
 - doc/code 不一致比缺失更糟——PR 应当同时改两者。
 
@@ -567,7 +567,7 @@ cache 路由"。
 - [ ] 复杂的设计决策(为什么 ports 这样切、为什么用某种事件流)
       写在 PR 描述里
 - [ ] 改了 public contract 时,更新 `kun/README.md` 端点表
-- [ ] 借鉴/致谢有变化时,更新根目录 `README.md` 和 `README.en.md`
+- [ ] 借鉴/致谢有变化时,更新根目录 `README.md` 和 `README.zh-CN.md`
 - [ ] 新增 SSE 事件时,给 `docs/kun-architecture.md` 加一行
 - [ ] 在 `docs/kun-architecture.md` 的 borrow map 中(如未来
       添加 OpenAI-style 借鉴)说明设计来源
