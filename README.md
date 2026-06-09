@@ -94,6 +94,7 @@ Kun 把“省 token”做成 agent loop 的默认行为，而不是事后补救�
 - **连接手机**：可开启独立于普通聊天的后台 Agent，当前支持飞书 / Lark / 微信接入、IM webhook / relay，以及按计划自动执行任务。
 - **定时任务**：创建一次性、每日、间隔或手动任务，指定工作区、模型和推理强度，让 Kun 在电脑唤醒时自动执行。
 - **Write 写作模式**：独立管理 `~/.deepseekgui/write_workspace` 和自定义写作空间，读取 Markdown 文件树，支持 live Markdown 编辑、相对图片预览、DeepSeek FIM 短补全 / 灵感长补全（可用跨文本 BM25 + 关键词检索增强）、当前文档导出为 `HTML / PDF / DOC / DOCX`，以及选中文本后直接唤起 inline 写作助手。
+- **Reverse Engineering 逆向工程模式**：面向 PE / ELF / Mach-O / APK 等二进制样本做 triage，提取哈希、节区、导入导出、字符串、IOC、熵和能力线索，将分析状态保存到 `.re-mode/`，并用证据图分析加壳、混淆和保护逻辑；连接 Ghidra MCP 时可读取函数、反编译、xref 与调用图，缺失时自动回退到本地工具和已保存产物。
 - **高 Token ROI**：Kun 会稳定 prompt 前缀、跟踪 DeepSeek 原生缓存命中、按需压缩上下文和工具输出，并用 MCP search 渐进发现工具，把 token 留给需求、代码、决策和结果。
 - **首次配置友好**：首次启动会引导你选择语言、填写 DeepSeek API Key，并按需配置兼容服务地址。
 - **本地优先**：设置、会话状态、日志和运行时配置保存在本机；模型调用使用你自己的 DeepSeek API Key。
@@ -170,7 +171,7 @@ provider，settings 会在读取时迁移到 `agents.kun`，再次保存后
 
 ## 工作台与入口
 
-DeepSeek GUI 现在以 **Code** 和 **写作** 两个主工作台为核心，并提供
+DeepSeek GUI 现在以 **Code**、**写作** 和 **Reverse Engineering** 工作台为核心，并提供
 **连接手机**、**定时任务**、**插件 / Skill / MCP** 等入口。它们共享同一套
 Kun 运行时与设置，但会话、工作区和界面布局彼此独立，可按任务随时切换。
 
@@ -187,6 +188,17 @@ Kun 运行时与设置，但会话、工作区和界面布局彼此独立，可�
 - 支持新建需求、`/plan` 计划、右侧计划面板、线程 Todo 和 `/goal` 长期目标，让复杂任务可以先澄清、再计划、再执行。
 - 支持 `/review` 代码审查、`/btw` 旁支对话、会话压缩、会话分叉和归档恢复，适合长时间维护同一个项目上下文。
 - 提供快捷任务卡片，可一键发起结构梳理、排错、实现方案或 UI 优化等对话。
+
+### Reverse Engineering 逆向工程模式
+
+面向二进制分析的专用工作台，用于快速 triage、静态分析和受保护软件分析，同时避免把大量原始反汇编塞进聊天上下文。
+
+- 对 PE / ELF / Mach-O / APK 等文件执行二进制 intake：哈希、格式、架构、节区、导入导出、字符串、熵、IOC、加壳线索和能力线索。
+- 在 `.re-mode/` 中持久化分析状态，包括 `analysis.json`、`iocs.json`、`symbols.json`、`notes.md`、`report.md`、原始输出、函数摘要和 diff。
+- 通过 `.re-mode/behavior-graph.json` 关联保护/混淆证据：高熵 blob、解码器、动态 API 解析、VM dispatcher / handler 候选、解码产物、消费者函数与能力分类。
+- 如果连接了 Ghidra MCP，可把它作为高保真后端读取函数、反编译、反汇编、xref、调用图、符号、重命名和注释；如果不可用，则回退到本地 RE helpers、通用 MCP、已保存产物或用户提供的片段。
+
+详细文档：[`docs/RE_MODE.md`](docs/RE_MODE.md)。
 
 ### Write 模式
 
@@ -388,6 +400,7 @@ npm run release:win     # 手动兜底：构建并上传 Windows release 资源
 | [docs/kun-architecture.md](docs/kun-architecture.md) | Kun 单运行时方案、GUI 拆改范围、HTTP/SSE 合约、旧 agent 拆除说明 |
 | [docs/kun-cache-optimization.md](docs/kun-cache-optimization.md) | Kun 缓存优化、token economy、MCP search、工具输出压缩与用量收益统计 |
 | [docs/kun-contributing.md](docs/kun-contributing.md) | Kun 贡献指南：六边形架构、设计模式（Ports & Adapters / Functional Core Imperative Shell / 事件溯源 / 显式 DI / Composition Root）、4 个典型 PR 场景 |
+| [docs/RE_MODE.md](docs/RE_MODE.md) | Reverse Engineering 模式：二进制 triage、`.re-mode/` 产物、受保护二进制分析、证据图和 Ghidra MCP-aware 工作流 |
 | [kun/README.md](kun/README.md) | Kun 包：CLI、env、data dir、HTTP API |
 | [CONTRIBUTING.zh-CN.md](docs/CONTRIBUTING.zh-CN.md) | 贡献说明 |
 | [DEVELOPMENT.zh-CN.md](docs/DEVELOPMENT.zh-CN.md) | 本地开发与协作流程 |

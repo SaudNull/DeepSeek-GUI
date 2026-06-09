@@ -94,6 +94,7 @@ The result: Kun is built for real project work with long tasks, long sessions, a
 - **Connect phone**: run a background agent alongside normal chat, with current support for Feishu / Lark / WeChat, IM webhook / relay flows, and scheduled tasks.
 - **Scheduled tasks**: create one-time, daily, interval, or manual tasks with their own workspace, model, and reasoning effort so Kun can run while the computer is awake.
 - **Write mode**: manage `~/.deepseekgui/write_workspace` and custom writing spaces, browse Markdown files, use live Markdown editing, preview relative images, get DeepSeek FIM short completion / inspiration completion with optional cross-document BM25 + keyword retrieval, export the current document as `HTML / PDF / DOC / DOCX`, and invoke the writing assistant directly from selected text.
+- **Reverse Engineering mode**: triage PE / ELF / Mach-O / APK binaries, extract hashes, sections, imports, strings, IOCs, and entropy, persist `.re-mode/` artifacts, and analyze protected or obfuscated samples with evidence graphs and optional Ghidra MCP context.
 - **High token ROI**: Kun keeps prompt prefixes stable, tracks DeepSeek-native cache hit/miss fields, compacts context and tool output, and uses MCP search to discover tools progressively so tokens stay focused on requirements, code, decisions, and results.
 - **Friendly first launch**: choose language, add your DeepSeek API key, and optionally set a compatible Base URL.
 - **Local-first**: preferences, sessions, logs, and runtime config stay on your machine; model calls use your own DeepSeek API key.
@@ -185,7 +186,7 @@ layout, and SSE event schema are documented in
 
 ## Workbench And Entry Points
 
-DeepSeek GUI is centered on two main workbenches, **Code** and **Write**,
+DeepSeek GUI is centered on **Code**, **Write**, and **Reverse Engineering** workbenches,
 with additional entry points for **Connect phone**, **Scheduled tasks**,
 and **Plugins / Skills / MCP**. They share the same Kun runtime and
 settings, but keep sessions, workspaces, and layouts separate so you
@@ -204,6 +205,17 @@ The development workbench for real codebases: bind a local project directory, re
 - New requirement drafts, `/plan`, the right-side Plan panel, thread todos, and `/goal` help complex work move from clarification to planning to execution.
 - `/review`, `/btw`, thread compaction, thread forking, archive, and restore support longer-lived project conversations.
 - Quick-start cards for common tasks such as project mapping, bug fixing, implementation planning, and UI polish.
+
+### Reverse Engineering Mode
+
+A dedicated binary-analysis workbench for triage, static analysis, and protected-software investigation without flooding the chat context with raw disassembly.
+
+- Run binary intake for PE / ELF / Mach-O / APK and related files: hashes, format, architecture, sections, imports, exports, strings, entropy, IOCs, packer hints, and capability clues.
+- Persist analysis state in `.re-mode/`, including `analysis.json`, `iocs.json`, `symbols.json`, `notes.md`, `report.md`, raw outputs, function summaries, and diffs.
+- Correlate protected and obfuscated binary evidence through `.re-mode/behavior-graph.json`: high-entropy blobs, decoders, dynamic API resolution, VM dispatcher/handler candidates, decoded artifacts, consumers, and capabilities.
+- Use Ghidra MCP as a high-fidelity backend when connected for functions, decompiler output, disassembly, xrefs, call graphs, symbols, renames, and comments; fall back cleanly to local helpers, generic MCP tools, saved artifacts, or user snippets when it is unavailable.
+
+Detailed docs: [`docs/RE_MODE.md`](docs/RE_MODE.md).
 
 ### Write Mode
 
@@ -405,6 +417,7 @@ For the full development workflow, see [DEVELOPMENT.md](./docs/DEVELOPMENT.md).
 | [docs/kun-architecture.en.md](docs/kun-architecture.en.md) | Single-Kun runtime plan, GUI removal scope, HTTP/SSE contract, and legacy agent retirement notes |
 | [docs/kun-cache-optimization.en.md](docs/kun-cache-optimization.en.md) | Kun cache optimization, token economy, MCP search, tool-output compaction, and usage savings |
 | [docs/kun-contributing.en.md](docs/kun-contributing.en.md) | Kun contribution guide: hexagonal architecture, design patterns (Ports & Adapters / Functional Core Imperative Shell / event sourcing / explicit DI / composition root), four typical PR scenarios |
+| [docs/RE_MODE.md](docs/RE_MODE.md) | Reverse Engineering Mode: binary triage, `.re-mode/` artifacts, protected-binary analysis, behavior graph, and Ghidra MCP-aware workflows |
 | [kun/README.md](kun/README.md) | Kun package: CLI, env, data dir, HTTP API |
 | [CONTRIBUTING.en.md](docs/CONTRIBUTING.en.md) | Contribution guide |
 | [DEVELOPMENT.en.md](docs/DEVELOPMENT.en.md) | Local development workflow |
